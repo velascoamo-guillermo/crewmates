@@ -1,0 +1,16 @@
+{
+  "name": "task-reviewer",
+  "description": "Adversarial read-only reviewer: spec compliance + code quality with file:line evidence and severity verdicts. Use after an implementer finishes a ticket.",
+  "claude-code": {
+    "model": "opus",
+    "tools": ["Read", "Grep", "Glob", "Bash"]
+  },
+  "opencode": {
+    "mode": "subagent",
+    "model": "anthropic/claude-opus-5",
+    "tools": {
+      "write": false,
+      "edit": false
+    }
+  }
+}

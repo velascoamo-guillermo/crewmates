@@ -1,0 +1,11 @@
+{
+  "name": "implementer",
+  "description": "Implements exactly one ticket from a brief file using strict TDD, then opens a PR and waits for CI. Use for ticket-loop implementation work.",
+  "claude-code": {
+    "model": "sonnet"
+  },
+  "opencode": {
+    "mode": "subagent",
+    "model": "anthropic/claude-sonnet-4-5"
+  }
+}

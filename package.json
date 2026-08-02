@@ -1,0 +1,9 @@
+{
+  "name": "crewmates",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate": "bun scripts/generate-adapters.ts",
+    "generate:dry": "bun scripts/generate-adapters.ts --dry"
+  }
+}

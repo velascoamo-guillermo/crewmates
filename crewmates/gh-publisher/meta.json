@@ -1,0 +1,15 @@
+{
+  "name": "gh-publisher",
+  "description": "Writes issue/PR titles and bodies from a diff or brief, then publishes via deterministic gh helper scripts. Cheap model: use for all mechanical GitHub publishing steps.",
+  "claude-code": {
+    "model": "haiku",
+    "tools": ["Bash", "Read", "Grep", "Glob", "Write"]
+  },
+  "opencode": {
+    "mode": "subagent",
+    "model": "anthropic/claude-haiku-4-5",
+    "tools": {
+      "edit": false
+    }
+  }
+}
