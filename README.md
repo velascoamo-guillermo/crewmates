@@ -83,6 +83,11 @@ Writing rule: the `description` is the router. Write it as trigger conditions
 never loads. Keep bodies thin: preferences, pointers, and guardrails; link docs
 instead of pasting API details that rot.
 
+Organization: flat folders, `<domain>-<topic>` names (`rn-haptics`,
+`swift-testing-conventions`, `infra-gke-deploys`). No nesting by technology —
+the install target is flat and routing ignores folders. Granularity: one skill
+per decision area; if a body grows past ~100 lines, split it.
+
 ## Adding a crewmate
 
 1. `mkdir crewmates/<name>`, write `PROMPT.md` (role, input, workflow, output
