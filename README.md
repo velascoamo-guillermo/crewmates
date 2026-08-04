@@ -64,6 +64,7 @@ export CREWMATES_HOME="$HOME/Documents/Projects/crewmates"
 | Script | Does |
 |---|---|
 | `next-ticket.sh [--repo o/r]` | Lowest open `ticket` issue with all `Depends on: #N` closed → `NUMBER\tTITLE` |
+| `ensure-labels.sh [--repo o/r]` | Idempotently create workflow labels (`ticket`, `blocked`). Run once per repo |
 | `issue-create.sh --title --body-file [--label] [--assignee @me]` | Create issue, print URL. Blockers: `--label blocked --assignee @me` |
 | `pr-create.sh --title --body-file [--base] [--draft]` | Push branch (never main, never force), open PR |
 | `ci-wait.sh [pr]` | Block until checks finish; exit 0 = green |
