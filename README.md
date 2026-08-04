@@ -64,7 +64,7 @@ export CREWMATES_HOME="$HOME/Documents/Projects/crewmates"
 | Script | Does |
 |---|---|
 | `next-ticket.sh [--repo o/r]` | Lowest open `ticket` issue with all `Depends on: #N` closed → `NUMBER\tTITLE` |
-| `issue-create.sh --title --body-file [--label]` | Create issue, print URL |
+| `issue-create.sh --title --body-file [--label] [--assignee @me]` | Create issue, print URL. Blockers: `--label blocked --assignee @me` |
 | `pr-create.sh --title --body-file [--base] [--draft]` | Push branch (never main, never force), open PR |
 | `ci-wait.sh [pr]` | Block until checks finish; exit 0 = green |
 | `pr-merge.sh <pr> [--issue N]` | Squash-merge, delete branch, close issue |
