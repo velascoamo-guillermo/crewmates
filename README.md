@@ -70,6 +70,19 @@ export CREWMATES_HOME="$HOME/Documents/Projects/crewmates"
 | `pr-merge.sh <pr> [--issue N]` | Squash-merge, delete branch, close issue |
 | `board-move.sh --owner --project --issue --status` | Move card on Projects v2 board |
 
+## Skills
+
+`skills/<name>/SKILL.md` — reusable knowledge, routed on demand: only the
+frontmatter `description` sits in context; the body loads when relevant.
+`setup.sh` symlinks each one into `~/.claude/skills/` (machine-global, every
+project). SKILL.md is an open format — same files work in other harnesses that
+adopt it.
+
+Writing rule: the `description` is the router. Write it as trigger conditions
+("Use when adding haptic feedback in RN...") — a vague summary means the skill
+never loads. Keep bodies thin: preferences, pointers, and guardrails; link docs
+instead of pasting API details that rot.
+
 ## Adding a crewmate
 
 1. `mkdir crewmates/<name>`, write `PROMPT.md` (role, input, workflow, output

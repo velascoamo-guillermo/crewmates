@@ -21,4 +21,20 @@ else
   echo "CREWMATES_HOME already in $ZSHRC"
 fi
 
-echo "done: adapters in ~/.claude/agents and ~/.config/opencode/agent"
+# Symlink skills into ~/.claude/skills (loaded on demand by description match)
+SKILLS_DIR="$HOME/.claude/skills"
+if [[ -d skills ]]; then
+  mkdir -p "$SKILLS_DIR"
+  for skill in skills/*/; do
+    name=$(basename "$skill")
+    target="$SKILLS_DIR/$name"
+    if [[ -L "$target" || ! -e "$target" ]]; then
+      ln -sfn "$(pwd)/skills/$name" "$target"
+      echo "linked skill: $name"
+    else
+      echo "skip skill $name: $target exists and is not a symlink" >&2
+    fi
+  done
+fi
+
+echo "done: adapters in ~/.claude/agents and ~/.config/opencode/agent; skills in ~/.claude/skills"
