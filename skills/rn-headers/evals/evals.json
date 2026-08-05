@@ -1,0 +1,23 @@
+{
+  "skill_name": "rn-headers",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm adding a new screen to my Expo Router app. In app/(tabs)/profile/_layout.tsx there's a Stack with a single Screen named \"index\". Configure the header for the profile screen.",
+      "expected_output": "Stack.Screen options set with title, headerLargeTitle: true, headerTransparent gated to iOS, headerBlurEffect version-guarded for iOS 26+",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "My home screen in app/(tabs)/(home)/index.tsx has a FlatList of posts but the content hides behind the transparent header when I scroll. Fix it.",
+      "expected_output": "contentInsetAdjustmentBehavior=\"automatic\" added to the FlatList",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "I want the settings screen header to NOT show. The layout is app/(tabs)/settings/_layout.tsx with a Stack.Screen named \"index\".",
+      "expected_output": "headerShown: false set explicitly — defaults (large title etc.) not forced on",
+      "files": []
+    }
+  ]
+}
