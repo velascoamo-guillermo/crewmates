@@ -7,7 +7,7 @@
   },
   "opencode": {
     "mode": "subagent",
-    "model": "opencode/nemotron-3-ultra-free",
+    "model": "anthropic/claude-opus-5",
     "tools": {
       "write": false,
       "edit": false

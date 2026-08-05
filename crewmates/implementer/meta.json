@@ -6,6 +6,6 @@
   },
   "opencode": {
     "mode": "subagent",
-    "model": "opencode/north-mini-code-free"
+    "model": "anthropic/claude-sonnet-4-5"
   }
 }
