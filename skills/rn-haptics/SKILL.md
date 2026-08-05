@@ -21,8 +21,9 @@ than most training data; hallucinated APIs are likely.
 
 ## Conventions
 
-- Install with `bunx expo install react-native-pulsar` (respects SDK version
-  compat) in Expo projects.
+- Install with `pnpm expo install react-native-pulsar` (respects SDK version
+  compat) in Expo projects; use the project's package manager if its lockfile
+  differs.
 - Haptic triggers belong at the interaction layer (press handlers, gesture
   callbacks) — not inside business logic or reducers.
 - Semantic mapping: success/error/warning feedback for outcomes; light impact
