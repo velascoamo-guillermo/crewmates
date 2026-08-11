@@ -7,7 +7,7 @@ set -uo pipefail
 # and adapter staleness (source edited but `bun run generate` not re-run).
 # Exit 0 = healthy (warnings allowed), 1 = at least one failure.
 
-cd "$(cd "$(dirname "$0")" && pwd)"
+cd "$(cd "$(dirname "$0")" && pwd)" || exit 1
 
 FAILURES=0 WARNINGS=0
 ok()   { printf '  \033[32m✓\033[0m %s\n' "$1"; }
