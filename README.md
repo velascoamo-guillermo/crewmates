@@ -71,6 +71,17 @@ export CREWMATES_HOME="$HOME/Documents/Projects/crewmates"
 | `pr-merge.sh <pr> [--issue N]` | Squash-merge, delete branch, close issue |
 | `board-move.sh --owner --project --issue --status` | Move card on Projects v2 board |
 
+## Other scripts
+
+| Script | Does |
+|---|---|
+| `fastlane-quiet.sh <dir> <lane...>` | Run a fastlane lane, full log to file, print tail only. Failure → last 60 lines + log path. Keeps build noise out of agent context |
+
+Rule: don't wrap fastlane lanes in per-lane scripts — lanes ARE the script layer.
+Logic goes in the Fastfile; scripts exist only to tame output or orchestrate
+around fastlane (monorepo app→lane resolution). Document available lanes in each
+project's `CLAUDE.md`.
+
 ## Skills
 
 `skills/<name>/SKILL.md` — reusable knowledge, routed on demand: only the
