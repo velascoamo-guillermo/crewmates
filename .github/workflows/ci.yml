@@ -1,0 +1,30 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: bash syntax check
+        run: find . -name '*.sh' -not -path './node_modules/*' -print0 | xargs -0 -n1 bash -n
+
+      - name: shellcheck
+        run: find . -name '*.sh' -not -path './node_modules/*' -print0 | xargs -0 shellcheck -S warning
+
+  generator:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+
+      - name: generate adapters
+        run: bun scripts/generate-adapters.ts --claude-out /tmp/out/claude --opencode-out /tmp/out/opencode
+
+      - name: verify generated adapters
+        run: ./scripts/ci/verify-adapters.sh /tmp/out/claude /tmp/out/opencode

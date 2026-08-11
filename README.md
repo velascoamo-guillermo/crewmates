@@ -40,6 +40,10 @@ cd crewmates && ./setup.sh
 Requires `bun` and an authenticated `gh`. The script generates adapters and adds
 `CREWMATES_HOME` to `~/.zshrc` (idempotent).
 
+Health check anytime: `./doctor.sh` — verifies tools, auth, skill symlinks, and
+flags stale adapters (source edited without re-running `bun run generate`).
+CI runs shellcheck + generator verification on every push.
+
 ## Generate adapters
 
 ```bash
