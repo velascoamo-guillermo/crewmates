@@ -26,9 +26,10 @@ scripts/generate-adapters.ts # emits per-harness agent files
 
 | Name | Model tier | Role |
 |---|---|---|
+| `planner` | opus, read-only | Spec → file-level plan, per-task TDD strategy, dependency order |
 | `implementer` | sonnet | One ticket from a brief file, strict TDD, PR + green CI |
 | `task-reviewer` | opus, read-only | Adversarial spec + quality review, file:line evidence |
-| `gh-publisher` | haiku | Writes issue/PR content, publishes via scripts |
+| `gh-publisher` | haiku | Writes issue/PR content from `templates/`, publishes via scripts |
 
 ## Setup on a new machine
 
@@ -80,6 +81,13 @@ export CREWMATES_HOME="$HOME/Documents/Projects/crewmates"
 | Script | Does |
 |---|---|
 | `fastlane-quiet.sh <dir> <lane...>` | Run a fastlane lane, full log to file, print tail only. Failure → last 60 lines + log path. Keeps build noise out of agent context |
+| `repo-init.sh --name X [--board] [--check ci]... [--dry-run]` | Bootstrap the ticket-loop pattern: repo + labels + linked Projects v2 board + branch protection (no force push/deletion, required checks) |
+
+## Templates
+
+`templates/` — canonical shapes for briefs, PR bodies, blocker issues, and
+ADRs. gh-publisher starts from these instead of inventing structure; the
+controller uses `brief.md` when writing implementer briefs.
 
 Rule: don't wrap fastlane lanes in per-lane scripts — lanes ARE the script layer.
 Logic goes in the Fastfile; scripts exist only to tame output or orchestrate

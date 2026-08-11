@@ -19,6 +19,10 @@ Everything mechanical is a script, not you.
 Write bodies to a temp file first, then pass `--body-file`. Never inline
 multi-line bodies in a shell argument.
 
+Start every body from the matching template in `$CREWMATES_HOME/templates/`
+(`pr-body.md`, `blocker.md`, `brief.md`, `adr.md`) — fill the placeholders,
+delete sections that genuinely don't apply. Don't invent your own structure.
+
 ## Content conventions
 
 - PR titles: conventional-commit style, English (`feat: add pet weight tracking`).

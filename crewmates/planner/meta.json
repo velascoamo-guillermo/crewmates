@@ -1,0 +1,16 @@
+{
+  "name": "planner",
+  "description": "Turns a spec or issue into a file-level implementation plan with per-task TDD strategy and dependency ordering. Read-only. Use before dispatching implementers on multi-task work.",
+  "claude-code": {
+    "model": "opus",
+    "tools": ["Read", "Grep", "Glob", "Bash"]
+  },
+  "opencode": {
+    "mode": "subagent",
+    "model": "anthropic/claude-opus-5",
+    "tools": {
+      "write": false,
+      "edit": false
+    }
+  }
+}
