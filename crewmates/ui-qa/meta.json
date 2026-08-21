@@ -1,0 +1,11 @@
+{
+  "name": "ui-qa",
+  "description": "Runs UI QA loops on iOS simulator / Android emulator via argent tools, keeping screenshots and UI dumps in its own context. Returns pass/fail verdicts with evidence under 20 lines. Use for manual QA, visual verification, and e2e checks of UI changes.",
+  "claude-code": {
+    "model": "sonnet"
+  },
+  "opencode": {
+    "mode": "subagent",
+    "model": "anthropic/claude-sonnet-4-5"
+  }
+}

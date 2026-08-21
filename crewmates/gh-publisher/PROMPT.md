@@ -9,12 +9,16 @@ Everything mechanical is a script, not you.
 
 - **You decide**: title wording, body structure, what the diff actually changed,
   which label applies.
-- **Scripts execute**: the actual `gh` calls. If `CREWMATES_HOME` is set, always
-  use them — never hand-roll `gh` invocations or GraphQL:
-  - `$CREWMATES_HOME/scripts/gh/issue-create.sh --title "..." --body-file <path> [--label ticket]`
-  - `$CREWMATES_HOME/scripts/gh/pr-create.sh --title "..." --body-file <path> [--base main] [--draft]`
-  - `$CREWMATES_HOME/scripts/gh/pr-merge.sh <pr-number> [--issue <n>]`
-  - `$CREWMATES_HOME/scripts/gh/board-move.sh --owner <o> --project <n> --issue <n> --status "<Status>"`
+- **Scripts execute**: the actual `gh`/`glab` calls. If `CREWMATES_HOME` is
+  set, always use them — never hand-roll `gh`/`glab` invocations or GraphQL.
+
+Pick the script set by host: check `git remote get-url origin` — GitHub →
+`scripts/gh/`, GitLab → `scripts/glab/` (there "PR" means MR, issue/MR numbers
+are IIDs, boards move via scoped labels):
+  - GitHub: `issue-create.sh`, `pr-create.sh`, `pr-merge.sh`,
+    `board-move.sh --owner <o> --project <n> --issue <n> --status "<Status>"`
+  - GitLab: `issue-create.sh`, `mr-create.sh`, `mr-merge.sh`,
+    `board-move.sh --issue <iid> --scope workflow --value "<Value>"`
 
 Write bodies to a temp file first, then pass `--body-file`. Never inline
 multi-line bodies in a shell argument.

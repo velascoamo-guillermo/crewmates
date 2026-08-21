@@ -29,7 +29,8 @@ scripts/generate-adapters.ts # emits per-harness agent files
 | `planner` | opus, read-only | Spec → file-level plan, per-task TDD strategy, dependency order |
 | `implementer` | sonnet | One ticket from a brief file, strict TDD, PR + green CI |
 | `task-reviewer` | opus, read-only | Adversarial spec + quality review, file:line evidence |
-| `gh-publisher` | haiku | Writes issue/PR content from `templates/`, publishes via scripts |
+| `gh-publisher` | haiku | Writes issue/PR/MR content from `templates/`, publishes via gh or glab scripts |
+| `ui-qa` | sonnet | Argent UI verification loops; screenshots stay in its context, returns <20-line verdicts |
 
 ## Setup on a new machine
 
@@ -76,12 +77,25 @@ export CREWMATES_HOME="$HOME/Documents/Projects/crewmates"
 | `pr-merge.sh <pr> [--issue N]` | Squash-merge, delete branch, close issue |
 | `board-move.sh --owner --project --issue --status` | Move card on Projects v2 board |
 
+## glab scripts (GitLab twins)
+
+`scripts/glab/` mirrors `scripts/gh/` for GitLab repos: `next-ticket.sh`,
+`issue-create.sh`, `mr-create.sh`, `ci-wait.sh` (REST poll, `--timeout`),
+`mr-merge.sh`, `ensure-labels.sh`, and `board-move.sh` (label-driven boards:
+`--issue <iid> --scope workflow --value "In Progress"` swaps scoped labels).
+Agents pick the set by `git remote get-url origin`.
+
+> Status: shellcheck/CI-verified only — not yet exercised against a real
+> GitLab instance (`glab` not installed on the authoring machine). Expect to
+> patch flags on first real use.
+
 ## Other scripts
 
 | Script | Does |
 |---|---|
 | `fastlane-quiet.sh <dir> <lane...>` | Run a fastlane lane, full log to file, print tail only. Failure → last 60 lines + log path. Keeps build noise out of agent context |
-| `repo-init.sh --name X [--board] [--check ci]... [--dry-run]` | Bootstrap the ticket-loop pattern: repo + labels + linked Projects v2 board + branch protection (no force push/deletion, required checks) |
+| `repo-init.sh --name X [--board] [--check ci]... [--dry-run]` | Bootstrap the ticket-loop pattern: repo + labels + linked Projects v2 board + branch protection (no force push/deletion, required checks). GitHub only |
+| `maestro-quiet.sh <flow.yaml> [args...]` | Run a Maestro flow, full log to file, print tail only. Deterministic UI checks belong here, not in argent driving |
 
 ## Templates
 

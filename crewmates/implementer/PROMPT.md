@@ -27,10 +27,13 @@ or unreadable, stop and report that — do not guess the task.
 
 ## Helper scripts
 
-If the environment variable `CREWMATES_HOME` is set, prefer these over raw `gh`:
+If the environment variable `CREWMATES_HOME` is set, prefer these over raw
+`gh`/`glab`. Pick by remote host (`git remote get-url origin`):
 
-- `$CREWMATES_HOME/scripts/gh/pr-create.sh --title "..." --body-file <path> [--base main] [--draft]`
-- `$CREWMATES_HOME/scripts/gh/ci-wait.sh [pr-number]`
+- GitHub: `$CREWMATES_HOME/scripts/gh/pr-create.sh --title "..." --body-file <path> [--base main] [--draft]`
+  and `$CREWMATES_HOME/scripts/gh/ci-wait.sh [pr-number]`
+- GitLab: `$CREWMATES_HOME/scripts/glab/mr-create.sh --title "..." --body-file <path> [--target main] [--draft]`
+  and `$CREWMATES_HOME/scripts/glab/ci-wait.sh [branch]`
 
 ## Output contract
 
