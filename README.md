@@ -27,9 +27,9 @@ scripts/generate-adapters.ts # emits per-harness agent files
 | Name | Model tier | Role |
 |---|---|---|
 | `planner` | opus, read-only | Spec → file-level plan, per-task TDD strategy, dependency order |
-| `implementer` | sonnet | One ticket from a brief file, strict TDD, PR + green CI |
+| `implementer` | sonnet | One ticket from a brief file, strict TDD, commit + push. Never talks to gh/glab |
 | `task-reviewer` | opus, read-only | Adversarial spec + quality review, file:line evidence |
-| `gh-publisher` | haiku | Writes issue/PR/MR content from `templates/`, publishes via gh or glab scripts |
+| `gh-publisher` | haiku | The only agent that talks to GitHub/GitLab: issues, PRs/MRs (from the implementer's body draft), CI waits + failure excerpts, boards, merges |
 | `ui-qa` | sonnet | Argent UI verification loops; screenshots stay in its context, returns <20-line verdicts |
 
 ## Setup on a new machine
