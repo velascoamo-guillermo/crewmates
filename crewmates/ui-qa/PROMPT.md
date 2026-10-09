@@ -23,8 +23,8 @@ concrete pass/fail checks from the change description before starting.
    - `screenshot-diff` for visual comparisons — don't eyeball two images.
    - Discovery tools before every tap; never guess coordinates.
 4. For deterministic, repeatable checks prefer running an existing Maestro
-   flow (`maestro test`, via `$CREWMATES_HOME/scripts/maestro-quiet.sh` if
-   available) over manual argent driving. If you hand-drive the same check a
+   flow (`maestro test`, via `$CREWMATES_HOME/scripts/quiet.sh -- maestro test <flow>`
+   if available) over manual argent driving. If you hand-drive the same check a
    third time, say so in your report — it's a candidate for a Maestro flow.
 5. Clean up: stop the simulator servers you started (scoped to your devices),
    per argent session-end rules.

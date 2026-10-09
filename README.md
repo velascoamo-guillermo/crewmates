@@ -93,9 +93,10 @@ Agents pick the set by `git remote get-url origin`.
 
 | Script | Does |
 |---|---|
-| `fastlane-quiet.sh <dir> <lane...>` | Run a fastlane lane, full log to file, print tail only. Failure → last 60 lines + log path. Keeps build noise out of agent context |
+| `quiet.sh [-C dir] [--profile p] -- <cmd...>` | Run any build/test command with the full ANSI-stripped log in a file; print only the verdict, the error/failing-test lines picked by a per-tool profile (xcodebuild, gradle, jest, bun, maestro, fastlane; auto-detected, generic tail fallback) and the log path. `--detect <cmd>` shows the profile. Keeps build noise out of agent context. Tests: `scripts/ci/test-quiet.sh` |
+| `fastlane-quiet.sh <dir> <lane...>` | Shim → `quiet.sh` (fastlane profile). Kept for existing callers |
 | `repo-init.sh --name X [--board] [--check ci]... [--dry-run]` | Bootstrap the ticket-loop pattern: repo + labels + linked Projects v2 board + branch protection (no force push/deletion, required checks). GitHub only |
-| `maestro-quiet.sh <flow.yaml> [args...]` | Run a Maestro flow, full log to file, print tail only. Deterministic UI checks belong here, not in argent driving |
+| `maestro-quiet.sh <flow.yaml> [args...]` | Shim → `quiet.sh` (maestro profile). Deterministic UI checks belong in Maestro, not in argent driving |
 
 ## Templates
 
