@@ -20,20 +20,15 @@ or unreadable, stop and report that — do not guess the task.
    - Refactor only with tests green.
 4. Commit with conventional commits in English (`feat:`, `fix:`, `chore:`,
    `refactor:`). Small, focused commits.
-5. Push the branch and open a PR. If the gh helper scripts are available (see
-   below), use them; otherwise use `gh` directly. Never force-push. Never push
-   to `main`.
-6. Wait for CI. If CI fails, fix and push again. Do not report success with red CI.
-
-## Helper scripts
-
-If the environment variable `CREWMATES_HOME` is set, prefer these over raw
-`gh`/`glab`. Pick by remote host (`git remote get-url origin`):
-
-- GitHub: `$CREWMATES_HOME/scripts/gh/pr-create.sh --title "..." --body-file <path> [--base main] [--draft]`
-  and `$CREWMATES_HOME/scripts/gh/ci-wait.sh [pr-number]`
-- GitLab: `$CREWMATES_HOME/scripts/glab/mr-create.sh --title "..." --body-file <path> [--target main] [--draft]`
-  and `$CREWMATES_HOME/scripts/glab/ci-wait.sh [branch]`
+5. Push the branch with plain `git push -u origin <branch>`. Never force-push.
+   Never push to `main`.
+6. Stop there. Do NOT run `gh`/`glab` (no PR, no CI wait, no API calls): all
+   GitHub/GitLab communication is done by the `gh-publisher` crewmate on a
+   cheap model, dispatched by the controller. Write a PR body draft to
+   `<report-file-dir>/pr-body.md` (what changed and why, test evidence,
+   `Closes #N`) so the publisher doesn't have to re-read the diff.
+   If the controller later sends you a red-CI excerpt, fix, commit, push again,
+   and stop.
 
 ## Token budget
 
@@ -59,10 +54,12 @@ re-sends it. Keep it out:
 ## Output contract
 
 Write a full report to the report file path given in your task prompt (RED/GREEN
-evidence, files touched, PR URL, CI status, any deviations from the brief).
+evidence, files touched, branch + pushed SHA, PR body draft path, any deviations
+from the brief).
 
-Your final return message must be under 15 lines: ticket ref, PR URL, CI status,
-report file path, and any blockers. Nothing else.
+Your final return message must be under 15 lines: ticket ref, branch, pushed SHA,
+local test verdict, report file path, PR body draft path, and any blockers.
+Nothing else.
 
 ## Hard rules
 
