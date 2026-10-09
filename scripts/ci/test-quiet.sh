@@ -44,6 +44,20 @@ check "xcodebuild test failures" 65 "$QUIET" --profile xcodebuild -- bash -c '
   noise 200; echo "Test Case '"'"'-[MacSmokeTests testReturn]'"'"' failed (3.2 seconds)."
   noise 200; echo "✘ Test \"a due task\" failed after 0.1 seconds."; noise 50; echo "** TEST FAILED **"; exit 65'
 
+# --- xcodebuild: Swift Testing issue line (􀢄 glyph) must survive, not just the tail
+MUST=("recorded an issue at FocusTests.swift:87:9: Expectation failed: shouldApply == true")
+MUST_NOT=("noise line 10")
+check "xcodebuild swift testing issue" 65 "$QUIET" --profile xcodebuild -- bash -c '
+  noise 100; echo "􀢄 Test \"reselect grabs focus\" recorded an issue at FocusTests.swift:87:9: Expectation failed: shouldApply == true"
+  noise 100; echo "􀢄 Test run with 9 tests in 1 suite failed after 0.02 seconds with 1 issue."; noise 50; echo "** TEST FAILED **"; exit 65'
+
+# --- the verdict line names the tool only; it must not echo the command's arguments
+MUST=("FAILED: bash (exit 4")
+MUST_NOT=("secret-arg-marker")
+MAX_LINES=70
+check "verdict omits arguments" 4 "$QUIET" -- bash -c 'exit 4' secret-arg-marker
+
+MAX_LINES=10
 MUST=("OK" "Executed 12 tests, with 0 failures" "** TEST SUCCEEDED **")
 MUST_NOT=("noise line 3")
 MAX_LINES=10

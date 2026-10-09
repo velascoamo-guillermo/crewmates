@@ -47,7 +47,7 @@ load_profile() {
   case "$1" in
     xcodebuild)
       OK_PAT='\*\* (BUILD|TEST|ARCHIVE) SUCCEEDED \*\*|Executed [0-9]+ tests?, with|Test run with [0-9]+ tests'
-      FAIL_PAT='(error|fatal error): |Test Case .* failed|✘ |\*\* (BUILD|TEST|ARCHIVE) FAILED \*\*|Executed [0-9]+ tests?, with|Test run with [0-9]+ tests|Testing failed:' ;;
+      FAIL_PAT='(error|fatal error): |Test Case .* failed|✘ |recorded an issue|Expectation failed|\*\* (BUILD|TEST|ARCHIVE) FAILED \*\*|Executed [0-9]+ tests?, with|Test run with [0-9]+ tests|Testing failed:' ;;
     gradle)
       OK_PAT='BUILD SUCCESSFUL|[0-9]+ tests? completed|actionable tasks?:'
       FAIL_PAT='^e: |error:|What went wrong|FAILED|[0-9]+ tests? completed|Caused by:'
@@ -100,6 +100,8 @@ status=${PIPESTATUS[0]}
 set -e
 elapsed=$((SECONDS - start))
 lines=$(wc -l <"$log" | tr -d ' ')
+# The caller knows its own command; naming the tool is enough and keeps arguments out of context.
+tool="${1##*/}"
 
 # pick <pattern> <after> <before> <limit>: matching lines with context, deduplicated
 pick() {
@@ -108,11 +110,11 @@ pick() {
 }
 
 if [[ $status -eq 0 ]]; then
-  echo "OK: $* (${lines} log lines, ${elapsed}s, profile=$profile)"
+  echo "OK: $tool (${lines} log lines, ${elapsed}s, profile=$profile)"
   summary=$(pick "$OK_PAT" 0 0 200 | tail -8)
   if [[ -n "$summary" ]]; then echo "$summary"; else tail -5 "$log"; fi
 else
-  echo "FAILED: $* (exit $status, ${lines} log lines, ${elapsed}s, profile=$profile)"
+  echo "FAILED: $tool (exit $status, ${lines} log lines, ${elapsed}s, profile=$profile)"
   found=$(pick "$FAIL_PAT" "$FAIL_AFTER" "$FAIL_BEFORE" 80)
   if [[ -n "$found" ]]; then
     echo "$found"
