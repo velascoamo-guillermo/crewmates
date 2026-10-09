@@ -35,6 +35,27 @@ If the environment variable `CREWMATES_HOME` is set, prefer these over raw
 - GitLab: `$CREWMATES_HOME/scripts/glab/mr-create.sh --title "..." --body-file <path> [--target main] [--draft]`
   and `$CREWMATES_HOME/scripts/glab/ci-wait.sh [branch]`
 
+## Token budget
+
+Build and test output is the biggest cost in your context — every tool call
+re-sends it. Keep it out:
+
+- Run builds, tests, lanes and flows through `$CREWMATES_HOME/scripts/quiet.sh`
+  (`quiet.sh [-C <dir>] -- <cmd...>`): xcodebuild, gradle, jest, `bun test`,
+  maestro, fastlane. It prints a verdict plus the error/failing-test lines and
+  a log path. Read or grep the log only for the specific failure you need.
+  If `CREWMATES_HOME` is unset, pipe to a log file and grep it yourself — never
+  let a full build log into context.
+- While iterating, run only the test you are working on. Run the full suites
+  once, right before committing.
+- Never dump view hierarchies, accessibility trees or large objects
+  (`debugDescription`, full JSON responses) to stdout in a loop. Write to a
+  file and grep it.
+- Debugging cap: if you have no confirmed root cause after ~30 tool calls on
+  one problem, stop. Write what you tried, what you ruled out and your best
+  hypothesis to the report, and return. The controller decides the next step —
+  thrashing costs more than asking.
+
 ## Output contract
 
 Write a full report to the report file path given in your task prompt (RED/GREEN
