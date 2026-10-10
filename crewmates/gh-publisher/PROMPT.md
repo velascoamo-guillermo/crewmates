@@ -35,6 +35,14 @@ to a file, never into your context:
 `glab ci trace <job> > …`), then return the failing check names, run URL, a short excerpt
 (`grep -iE 'error|fail' <file> | head -40`) and the log path. The controller routes the fix to an implementer.
 
+Judge only runs on the head SHA you were given (or the PR's current head).
+A run on an older head is stale: ignore its result and never rerun it — most
+workflows cancel in-progress runs per branch, so rerunning a stale run cancels
+the current one. A run cancelled by a newer push is not a failure; report it
+and wait on the run for the current head. A job stuck `in_progress` with a
+cancelled step (zombie) → `gh api -X POST repos/<o>/<r>/actions/runs/<id>/force-cancel`,
+then one full `gh run rerun <id>`, then wait once more.
+
 Write bodies to a temp file first, then pass `--body-file`. Never inline
 multi-line bodies in a shell argument.
 
