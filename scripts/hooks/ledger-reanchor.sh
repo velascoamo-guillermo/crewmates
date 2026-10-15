@@ -18,7 +18,7 @@ ledger="$cwd/.superpowers/sdd/progress.md"
 # Repo-local git config is untrusted too: core.fsmonitor runs a command on
 # index reads. Override every exec-capable key these read-only calls touch.
 g() {
-  GIT_PAGER=cat git -c core.fsmonitor=false -c core.hooksPath=/dev/null \
+  env GIT_PAGER=cat git -c core.fsmonitor=false -c core.hooksPath=/dev/null \
     -c core.untrackedCache=false --no-optional-locks -C "$cwd" "$@"
 }
 [[ -L "$cwd/.superpowers" || -L "$cwd/.superpowers/sdd" || -L "$ledger" ]] && exit 0

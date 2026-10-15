@@ -20,6 +20,7 @@ msg=$(jq -r '.last_assistant_message // empty' <<<"$input")
 # "Report file:". Last matching line wins.
 path=$(printf '%s\n' "$msg" | tr -d '\r`' | sed -E 's/\*\*//g; s/^[[:space:]]*([-*][[:space:]]+)?//' \
   | sed -nE 's/^Report( file)?:[[:space:]]*(.*[^[:space:]])[[:space:]]*$/\2/p' | tail -1)
+# shellcheck disable=SC2088 # literal "~/" from the message, expanded by hand
 [[ "$path" == "~/"* ]] && path="$HOME/${path#\~/}"
 
 block() {
