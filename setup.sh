@@ -37,4 +37,13 @@ if [[ -d skills ]]; then
   done
 fi
 
-echo "done: adapters in ~/.claude/agents and ~/.config/opencode/agent; skills in ~/.claude/skills"
+# Wire ticket-loop hooks into ~/.claude/settings.json (validated, atomic,
+# timestamped backup). Refuses to touch an invalid settings file.
+SETTINGS="$HOME/.claude/settings.json"
+if command -v jq >/dev/null 2>&1; then
+  ./scripts/hooks/wire.sh "$SETTINGS" "$(pwd)"
+else
+  echo "skip hooks: jq not installed" >&2
+fi
+
+echo "done: adapters in ~/.claude/agents and ~/.config/opencode/agent; skills in ~/.claude/skills; hooks in $SETTINGS"

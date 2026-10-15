@@ -20,6 +20,9 @@ jobs:
       - name: quiet.sh behaviour tests
         run: ./scripts/ci/test-quiet.sh
 
+      - name: hook behaviour tests
+        run: ./scripts/ci/test-hooks.sh
+
   generator:
     runs-on: ubuntu-latest
     steps:
