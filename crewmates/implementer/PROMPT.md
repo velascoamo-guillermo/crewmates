@@ -37,7 +37,8 @@ implementer can pick up where you left off, not start over.
 
 - The brief names a checkpoint file (default `.superpowers/sdd/ticket-<N>.md`).
   It is local state — never commit it. If `git check-ignore -q <file>` fails,
-  add `.superpowers/` to `.git/info/exclude` (local, not committed) before
+  add `.superpowers/` to `"$(git rev-parse --git-common-dir)/info/exclude"`
+  (local, not committed; works in linked worktrees) before
   your first commit.
 - **Right after reading the brief, check whether the checkpoint exists.** If
   it does, you are a re-dispatch: read it, check out the branch it names,
