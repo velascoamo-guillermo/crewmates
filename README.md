@@ -79,13 +79,15 @@ export CREWMATES_HOME="$HOME/Documents/Projects/crewmates"
 
 ## Ticket-loop hooks
 
-Wired into `~/.claude/settings.json` by `setup.sh` (idempotent, writes
-`settings.json.bak` before any change). Both fail open.
+Wired into `~/.claude/settings.json` by `setup.sh` via `scripts/hooks/wire.sh`:
+refuses invalid JSON, validates the merged result before an atomic replace,
+and writes a timestamped `settings.json.bak.<ts>` only when something changes.
+Entries are keyed by script name, so moving the repo replaces them.
 
 | Hook | Event / matcher | Does |
 |---|---|---|
-| `scripts/hooks/require-report.sh` | `SubagentStop` / `implementer` | Blocks the stop until the final message has `Report: <path>` and that file is non-empty |
-| `scripts/hooks/ledger-reanchor.sh` | `SessionStart` / `compact` | After compaction, injects the last 20 lines of `.superpowers/sdd/progress.md` (`CREWMATES_LEDGER_TAIL`) |
+| `require-report.sh` | `SubagentStop` / `implementer` | Blocks the **first** stop if the last `Report: <abs path>` line is missing, relative, or points at an empty file (markdown decoration tolerated). The retry is let through (`stop_hook_active`) — one nudge, never a trap |
+| `ledger-reanchor.sh` | `SessionStart` / `compact` | After compaction, injects the last 20 lines of `.superpowers/sdd/progress.md` (`CREWMATES_LEDGER_TAIL`) as data. Fails closed (silent) unless cwd is a git work tree, the ledger is ignored and untracked, no symlinks; repo git config can't execute commands |
 
 Tests: `./scripts/ci/test-hooks.sh`.
 

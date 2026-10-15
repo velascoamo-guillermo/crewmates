@@ -7,6 +7,7 @@ set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 REQUIRE="$ROOT/scripts/hooks/require-report.sh"
 REANCHOR="$ROOT/scripts/hooks/ledger-reanchor.sh"
+WIRE="$ROOT/scripts/hooks/wire.sh"
 TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
 fail=0
@@ -111,5 +112,44 @@ git -C "$TMP/evil" config core.fsmonitor "touch $TMP/pwned; false"
 rm -f "$TMP/pwned"
 run "$REANCHOR" "$(jq -n --arg c "$TMP/evil" '{source:"compact", cwd:$c}')"
 [[ ! -e "$TMP/pwned" ]] && echo "ok   repo git config cannot run commands" || { echo "FAIL fsmonitor command executed"; fail=1; }
+
+# --- require-report.sh: tolerated decorations (models add markdown)
+for form in "\`Report: $TMP/report.md\`" "- Report: $TMP/report.md" "**Report:** $TMP/report.md" \
+            "  Report: $TMP/report.md" "Report: $TMP/report.md  " "Report: \`$TMP/report.md\`" \
+            "Report: $TMP/report.md"$'\r' "Report file: $TMP/report.md"; do
+  run "$REQUIRE" "$(stop_input implementer "done
+$form")"
+  expect "decorated report line allowed: $(printf '%q' "$form" | cut -c1-40)" 0 "" 1
+done
+
+run "$REQUIRE" "$(stop_input implementer "Report: report.md")"
+expect "relative report path -> block with absolute hint" 0 "absolute" 0
+
+run "$REQUIRE" "$(stop_input implementer "Report: $TMP/old.md
+Report: $TMP/report.md")"
+expect "last Report line wins" 0 "" 1
+
+# --- wire.sh: safe settings.json merge
+W="$TMP/wire"; mkdir -p "$W"
+printf '{"model":"opus","hooks":{"PreToolUse":[{"matcher":"Read","hooks":[{"type":"command","command":"x"}]}]}}' > "$W/settings.json"
+cp "$W/settings.json" "$W/original.json"
+OUT=$(bash "$WIRE" "$W/settings.json" /repo/a 2>&1); CODE=$?
+expect "wire: valid settings -> ok" 0 "wired" 0
+[[ $(jq -r .model "$W/settings.json") == opus && $(jq '.hooks.PreToolUse|length' "$W/settings.json") == 1 \
+   && $(jq '.hooks.SubagentStop|length' "$W/settings.json") == 1 && $(jq '.hooks.SessionStart|length' "$W/settings.json") == 1 ]] \
+  && echo "ok   wire: keys preserved, hooks added" || { echo "FAIL wire: content"; cat "$W/settings.json"; fail=1; }
+OUT=$(bash "$WIRE" "$W/settings.json" /moved/b 2>&1); CODE=$?
+[[ $(jq '.hooks.SubagentStop|length' "$W/settings.json") == 1 ]] && echo "ok   wire: idempotent across repo moves" || { echo "FAIL wire: duplicated"; fail=1; }
+bak=$(ls "$W"/settings.json.bak.* 2>/dev/null | head -1)
+[[ -n "$bak" ]] && cmp -s "$bak" "$W/original.json" && echo "ok   wire: first backup is the original" || { echo "FAIL wire: backup"; fail=1; }
+
+printf '{ // comment\n "model": "opus" }' > "$W/bad.json"; cp "$W/bad.json" "$W/bad.orig"
+OUT=$(bash "$WIRE" "$W/bad.json" /repo/a 2>&1); CODE=$?
+expect "wire: invalid JSON -> abort" 1 "not valid JSON" 0
+cmp -s "$W/bad.json" "$W/bad.orig" && echo "ok   wire: invalid file untouched" || { echo "FAIL wire: invalid file modified"; fail=1; }
+
+: > "$W/empty.json"
+OUT=$(bash "$WIRE" "$W/empty.json" /repo/a 2>&1); CODE=$?
+expect "wire: empty file -> abort" 1 "not valid JSON" 0
 
 exit $fail

@@ -37,26 +37,11 @@ if [[ -d skills ]]; then
   done
 fi
 
-# Wire ticket-loop hooks into ~/.claude/settings.json (idempotent, backup first).
-# SubagentStop(implementer) enforces the report; SessionStart(compact) re-injects
-# the ledger after compaction. Skips any hook whose command is already present.
+# Wire ticket-loop hooks into ~/.claude/settings.json (validated, atomic,
+# timestamped backup). Refuses to touch an invalid settings file.
 SETTINGS="$HOME/.claude/settings.json"
 if command -v jq >/dev/null 2>&1; then
-  [[ -f "$SETTINGS" ]] || echo '{}' > "$SETTINGS"
-  add_hook() { # add_hook <event> <matcher> <script>
-    local cmd
-    cmd="bash \"$(pwd)/scripts/hooks/$3\""
-    if jq -e --arg c "$cmd" '[.. | .command? // empty] | index($c)' "$SETTINGS" >/dev/null; then
-      echo "hook $3 already wired"; return
-    fi
-    cp "$SETTINGS" "$SETTINGS.bak"
-    jq --arg e "$1" --arg m "$2" --arg c "$cmd" \
-      '.hooks[$e] = ((.hooks[$e] // []) + [{matcher: $m, hooks: [{type: "command", command: $c, timeout: 10}]}])' \
-      "$SETTINGS.bak" > "$SETTINGS"
-    echo "wired hook $3 ($1/$2)"
-  }
-  add_hook SubagentStop implementer require-report.sh
-  add_hook SessionStart compact ledger-reanchor.sh
+  ./scripts/hooks/wire.sh "$SETTINGS" "$(pwd)"
 else
   echo "skip hooks: jq not installed" >&2
 fi
