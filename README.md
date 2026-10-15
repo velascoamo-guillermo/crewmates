@@ -77,6 +77,18 @@ export CREWMATES_HOME="$HOME/Documents/Projects/crewmates"
 | `pr-merge.sh <pr> [--issue N]` | Squash-merge, delete branch, close issue |
 | `board-move.sh --owner --project --issue --status` | Move card on Projects v2 board |
 
+## Ticket-loop hooks
+
+Wired into `~/.claude/settings.json` by `setup.sh` (idempotent, writes
+`settings.json.bak` before any change). Both fail open.
+
+| Hook | Event / matcher | Does |
+|---|---|---|
+| `scripts/hooks/require-report.sh` | `SubagentStop` / `implementer` | Blocks the stop until the final message has `Report: <path>` and that file is non-empty |
+| `scripts/hooks/ledger-reanchor.sh` | `SessionStart` / `compact` | After compaction, injects the last 20 lines of `.superpowers/sdd/progress.md` (`CREWMATES_LEDGER_TAIL`) |
+
+Tests: `./scripts/ci/test-hooks.sh`.
+
 ## glab scripts (GitLab twins)
 
 `scripts/glab/` mirrors `scripts/gh/` for GitLab repos: `next-ticket.sh`,
