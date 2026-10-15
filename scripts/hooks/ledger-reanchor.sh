@@ -15,10 +15,16 @@ input=$(cat)
 cwd=$(jq -r '.cwd // empty' <<<"$input")
 ledger="$cwd/.superpowers/sdd/progress.md"
 [[ -n "$cwd" && -s "$ledger" ]] || exit 0
+# Repo-local git config is untrusted too: core.fsmonitor runs a command on
+# index reads. Override every exec-capable key these read-only calls touch.
+g() {
+  GIT_PAGER=cat git -c core.fsmonitor=false -c core.hooksPath=/dev/null \
+    -c core.untrackedCache=false --no-optional-locks -C "$cwd" "$@"
+}
 [[ -L "$cwd/.superpowers" || -L "$cwd/.superpowers/sdd" || -L "$ledger" ]] && exit 0
-git -C "$cwd" rev-parse --is-inside-work-tree >/dev/null 2>&1 || exit 0
-git -C "$cwd" check-ignore -q .superpowers/sdd/progress.md || exit 0
-[[ -z "$(git -C "$cwd" ls-files .superpowers)" ]] || exit 0
+g rev-parse --is-inside-work-tree >/dev/null 2>&1 || exit 0
+g check-ignore -q .superpowers/sdd/progress.md || exit 0
+[[ -z "$(g ls-files .superpowers)" ]] || exit 0
 [[ "$(cd "$cwd/.superpowers/sdd" && pwd -P)/progress.md" == "$(cd "$cwd" && pwd -P)/.superpowers/sdd/progress.md" ]] || exit 0
 
 lines=${CREWMATES_LEDGER_TAIL:-20}

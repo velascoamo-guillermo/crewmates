@@ -103,4 +103,13 @@ ln -s "$TMP/elsewhere" "$TMP/linked/.superpowers"
 run "$REANCHOR" "$(jq -n --arg c "$TMP/linked" '{source:"compact", cwd:$c}')"
 expect "symlinked .superpowers -> silent" 0 "" 1
 
+# repo-local git config must not execute commands (core.fsmonitor runs on index reads)
+mkdir -p "$TMP/evil/.superpowers/sdd" && echo "x" > "$TMP/evil/.superpowers/sdd/progress.md"
+git -C "$TMP/evil" init -q && echo ".superpowers/" > "$TMP/evil/.gitignore"
+git -C "$TMP/evil" add .gitignore
+git -C "$TMP/evil" config core.fsmonitor "touch $TMP/pwned; false"
+rm -f "$TMP/pwned"
+run "$REANCHOR" "$(jq -n --arg c "$TMP/evil" '{source:"compact", cwd:$c}')"
+[[ ! -e "$TMP/pwned" ]] && echo "ok   repo git config cannot run commands" || { echo "FAIL fsmonitor command executed"; fail=1; }
+
 exit $fail
