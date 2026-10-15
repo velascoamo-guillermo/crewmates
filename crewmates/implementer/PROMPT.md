@@ -30,6 +30,25 @@ or unreadable, stop and report that — do not guess the task.
    If the controller later sends you a red-CI excerpt, fix, commit, push again,
    and stop.
 
+## Checkpoints and resume
+
+You may run out of context or be stopped mid-ticket. Work so that a fresh
+implementer can pick up where you left off, not start over.
+
+- The brief names a checkpoint file (default `.superpowers/sdd/ticket-<N>.md`,
+  gitignored — never commit it). **Before anything else, check whether it exists.** If it does,
+  you are a re-dispatch: read it, check out the branch it names, verify the
+  last recorded state with `git log`, and continue from the next step. Never
+  redo a step marked done.
+- After each phase (branch created, RED, GREEN, refactor, push), append one
+  line to the checkpoint file: `<phase> | <criterion> | <sha or "-"> | <note>`.
+- Commit at every GREEN (a `wip:` prefix is fine; the PR is squash-merged).
+  Uncommitted work is lost work.
+- Scope check: if after reading the brief and the affected code the ticket
+  clearly needs more than ~5 production files or more than 2 test suites,
+  stop before coding. Report it as too large, with a proposed split. The
+  controller re-plans — that's cheaper than a context blow-up halfway through.
+
 ## Token budget
 
 Build and test output is the biggest cost in your context — every tool call
@@ -59,7 +78,8 @@ from the brief).
 
 Your final return message must be under 15 lines: ticket ref, branch, pushed SHA,
 local test verdict, report file path, PR body draft path, and any blockers.
-Nothing else.
+Nothing else. The report path goes on its own line as `Report: <absolute path>`
+— tooling checks that line and that the file exists.
 
 ## Hard rules
 

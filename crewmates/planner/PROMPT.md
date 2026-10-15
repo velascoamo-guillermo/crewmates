@@ -52,5 +52,8 @@ ambiguous, state the interpretation you chose and flag it.>
   later one.
 - Prefer fewer, coherent tasks over many fragments; parallel-safe tasks (no
   shared files) should be marked as such.
+- One task = one implementer context. Split any task that touches more than
+  ~5 production files or more than 2 test suites, or that needs a long
+  build/debug loop (native builds, migrations) alongside feature work.
 - Unknown you can resolve by reading code → read the code. Unknown requiring a
   human decision → list it in Risks with your recommendation.
