@@ -152,4 +152,18 @@ cmp -s "$W/bad.json" "$W/bad.orig" && echo "ok   wire: invalid file untouched" |
 OUT=$(bash "$WIRE" "$W/empty.json" /repo/a 2>&1); CODE=$?
 expect "wire: empty file -> abort" 1 "not valid JSON" 0
 
+# wire.sh: symlinked settings written through, permissions kept, same-second backups stay put
+mkdir -p "$W/dot-files" "$W/home-x"
+printf '{"model":"opus"}' > "$W/dot-files/real.json"; chmod 644 "$W/dot-files/real.json"
+ln -s "$W/dot-files/real.json" "$W/home-x/settings.json"
+bash "$WIRE" "$W/home-x/settings.json" /repo/a >/dev/null 2>&1
+[[ -L "$W/home-x/settings.json" && $(jq '.hooks.SubagentStop|length' "$W/dot-files/real.json") == 1 ]] \
+  && echo "ok   wire: writes through symlink" || { echo "FAIL wire: symlink replaced"; fail=1; }
+perm=$(stat -f %Lp "$W/dot-files/real.json" 2>/dev/null || stat -c %a "$W/dot-files/real.json")
+[[ "$perm" == 644 ]] && echo "ok   wire: permissions kept" || { echo "FAIL wire: perms $perm"; fail=1; }
+mkdir -p "$W/a-b"; printf '{}' > "$W/a-b/s.json"
+bash "$WIRE" "$W/a-b/s.json" /repo/a >/dev/null 2>&1; bash "$WIRE" "$W/a-b/s.json" /repo/b >/dev/null 2>&1; bash "$WIRE" "$W/a-b/s.json" /repo/c >/dev/null 2>&1
+[[ $(find "$W" -maxdepth 1 -name 'a-*' | wc -l | tr -d ' ') == 1 && $(ls "$W/a-b" | grep -c '^s.json.bak') -ge 2 ]] \
+  && echo "ok   wire: backups stay next to settings" || { echo "FAIL wire: backup escaped dir"; ls "$W"; fail=1; }
+
 exit $fail

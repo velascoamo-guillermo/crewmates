@@ -13,11 +13,18 @@ set -euo pipefail
 SETTINGS="$1" ROOT="$2"
 
 [[ -e "$SETTINGS" ]] || { mkdir -p "$(dirname "$SETTINGS")"; echo '{}' > "$SETTINGS"; }
+# Dotfile setups symlink settings.json: operate on the real file so the link
+# survives the atomic mv.
+while [[ -L "$SETTINGS" ]]; do
+  link=$(readlink "$SETTINGS")
+  [[ "$link" == /* ]] && SETTINGS="$link" || SETTINGS="$(dirname "$SETTINGS")/$link"
+done
 jq -e 'type == "object"' "$SETTINGS" >/dev/null 2>&1 \
   || { echo "wire: $SETTINGS is not valid JSON — fix it first, nothing changed" >&2; exit 1; }
 
 tmp=$(mktemp "$SETTINGS.tmp.XXXXXX")
 trap 'rm -f "$tmp"' EXIT
+cp -p "$SETTINGS" "$tmp" # carry permissions over to the replacement
 
 jq --arg root "$ROOT" '
   def wire($event; $matcher; $script):
@@ -40,8 +47,9 @@ if jq -S . "$SETTINGS" | cmp -s - <(jq -S . "$tmp"); then
   exit 0
 fi
 
-bak="$SETTINGS.bak.$(date +%Y%m%d%H%M%S)" n=0
-while [[ -e "$bak" ]]; do n=$((n + 1)); bak="${bak%-*}-$n"; done # never overwrite a backup
+base="$SETTINGS.bak.$(date +%Y%m%d%H%M%S)" n=0
+bak="$base"
+while [[ -e "$bak" ]]; do n=$((n + 1)); bak="$base-$n"; done # never overwrite a backup
 cp -p "$SETTINGS" "$bak"
 mv "$tmp" "$SETTINGS"
 echo "wired hooks in $SETTINGS (backup: $bak)"
