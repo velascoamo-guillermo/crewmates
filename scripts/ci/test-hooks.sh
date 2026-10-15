@@ -163,7 +163,7 @@ perm=$(stat -f %Lp "$W/dot-files/real.json" 2>/dev/null || stat -c %a "$W/dot-fi
 [[ "$perm" == 644 ]] && echo "ok   wire: permissions kept" || { echo "FAIL wire: perms $perm"; fail=1; }
 mkdir -p "$W/a-b"; printf '{}' > "$W/a-b/s.json"
 bash "$WIRE" "$W/a-b/s.json" /repo/a >/dev/null 2>&1; bash "$WIRE" "$W/a-b/s.json" /repo/b >/dev/null 2>&1; bash "$WIRE" "$W/a-b/s.json" /repo/c >/dev/null 2>&1
-[[ $(find "$W" -maxdepth 1 -name 'a-*' | wc -l | tr -d ' ') == 1 && $(ls "$W/a-b" | grep -c '^s.json.bak') -ge 2 ]] \
+[[ $(find "$W" -maxdepth 1 -name 'a-*' | wc -l | tr -d ' ') == 1 && $(find "$W/a-b" -name 's.json.bak.*' | wc -l | tr -d ' ') -ge 2 ]] \
   && echo "ok   wire: backups stay next to settings" || { echo "FAIL wire: backup escaped dir"; ls "$W"; fail=1; }
 
 exit $fail
