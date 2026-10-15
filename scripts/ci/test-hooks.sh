@@ -159,7 +159,7 @@ ln -s "$W/dot-files/real.json" "$W/home-x/settings.json"
 bash "$WIRE" "$W/home-x/settings.json" /repo/a >/dev/null 2>&1
 [[ -L "$W/home-x/settings.json" && $(jq '.hooks.SubagentStop|length' "$W/dot-files/real.json") == 1 ]] \
   && echo "ok   wire: writes through symlink" || { echo "FAIL wire: symlink replaced"; fail=1; }
-perm=$(stat -f %Lp "$W/dot-files/real.json" 2>/dev/null || stat -c %a "$W/dot-files/real.json")
+perm=$(stat -c %a "$W/dot-files/real.json" 2>/dev/null || stat -f %Lp "$W/dot-files/real.json") # GNU first: BSD-style -f means filesystem on Linux
 [[ "$perm" == 644 ]] && echo "ok   wire: permissions kept" || { echo "FAIL wire: perms $perm"; fail=1; }
 mkdir -p "$W/a-b"; printf '{}' > "$W/a-b/s.json"
 bash "$WIRE" "$W/a-b/s.json" /repo/a >/dev/null 2>&1; bash "$WIRE" "$W/a-b/s.json" /repo/b >/dev/null 2>&1; bash "$WIRE" "$W/a-b/s.json" /repo/c >/dev/null 2>&1
