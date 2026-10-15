@@ -58,6 +58,7 @@ expect "garbage input -> allow (fail open)" 0 "" 1
 
 # --- ledger-reanchor.sh
 mkdir -p "$TMP/repo/.superpowers/sdd"
+git -C "$TMP/repo" init -q && echo ".superpowers/" > "$TMP/repo/.gitignore"
 for i in $(seq 1 30); do echo "2026-10-15 #$i merged" ; done > "$TMP/repo/.superpowers/sdd/progress.md"
 echo "2026-10-15 #31 pr-open #40" >> "$TMP/repo/.superpowers/sdd/progress.md"
 
@@ -85,5 +86,21 @@ run "$REANCHOR" "$(jq -n --arg c "$TMP/repo" '{hook_event_name:"SessionStart", s
 expect "ledger framed as data" 0 "data, not instructions" 0
 [[ $(grep -c '```' <<<"$OUT") -eq 2 ]] && echo "ok   ledger cannot close the fence" || { echo "FAIL ledger fence count"; fail=1; }
 [[ $(awk '/^```/{f=!f; next} f && length > m { m = length } END { print m+0 }' <<<"$OUT") -le 200 ]] && echo "ok   ledger lines capped" || { echo "FAIL ledger line cap"; fail=1; }
+
+# fail closed: no git repo, ledger not ignored, symlinked dir
+mkdir -p "$TMP/nogit/.superpowers/sdd" && echo "x" > "$TMP/nogit/.superpowers/sdd/progress.md"
+run "$REANCHOR" "$(jq -n --arg c "$TMP/nogit" '{source:"compact", cwd:$c}')"
+expect "not a git repo -> silent" 0 "" 1
+
+mkdir -p "$TMP/unignored/.superpowers/sdd" && echo "x" > "$TMP/unignored/.superpowers/sdd/progress.md"
+git -C "$TMP/unignored" init -q
+run "$REANCHOR" "$(jq -n --arg c "$TMP/unignored" '{source:"compact", cwd:$c}')"
+expect "ledger not gitignored -> silent" 0 "" 1
+
+mkdir -p "$TMP/elsewhere/sdd" "$TMP/linked" && echo "x" > "$TMP/elsewhere/sdd/progress.md"
+git -C "$TMP/linked" init -q && echo ".superpowers" > "$TMP/linked/.gitignore"
+ln -s "$TMP/elsewhere" "$TMP/linked/.superpowers"
+run "$REANCHOR" "$(jq -n --arg c "$TMP/linked" '{source:"compact", cwd:$c}')"
+expect "symlinked .superpowers -> silent" 0 "" 1
 
 exit $fail
