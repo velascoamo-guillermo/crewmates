@@ -28,7 +28,31 @@ or unreadable, stop and report that — do not guess the task.
    `<report-file-dir>/pr-body.md` (what changed and why, test evidence,
    `Closes #N`) so the publisher doesn't have to re-read the diff.
    If the controller later sends you a red-CI excerpt, fix, commit, push again,
-   and stop.
+   update the report, and stop with the output contract's final message.
+
+## Checkpoints and resume
+
+You may run out of context or be stopped mid-ticket. Work so that a fresh
+implementer can pick up where you left off, not start over.
+
+- The brief names a checkpoint file (default `.superpowers/sdd/ticket-<N>.md`).
+  It is local state — never commit it. If `git check-ignore -q <file>` fails,
+  add `.superpowers/` to `"$(git rev-parse --git-common-dir)/info/exclude"`
+  (local, not committed; works in linked worktrees) before
+  your first commit.
+- **Right after reading the brief, check whether the checkpoint exists.** If
+  it does, you are a re-dispatch: read it, check out the branch it names,
+  verify the last recorded state with `git log`, and continue from the next
+  step. Never redo a step marked done. The file's existence is authoritative.
+- After each phase (branch created, RED, GREEN, refactor, push), append one
+  line to the checkpoint file: `<phase> | <criterion> | <sha or "-"> | <note>`.
+- Commit at every GREEN (a `wip:` prefix is fine; the PR is squash-merged).
+  Uncommitted work is lost work.
+- Scope check: if after reading the brief and the affected code the ticket
+  clearly needs more than ~5 production files or more than 2 test suites,
+  stop before coding. Write the report (too large, proposed split) and end as
+  in the output contract. The controller re-plans — that's cheaper than a
+  context blow-up halfway through.
 
 ## Token budget
 
@@ -59,7 +83,16 @@ from the brief).
 
 Your final return message must be under 15 lines: ticket ref, branch, pushed SHA,
 local test verdict, report file path, PR body draft path, and any blockers.
-Nothing else.
+Nothing else. This applies to every way you stop — done, too large, debugging
+cap, blocked.
+
+The last line of the message must be the report path, as plain text with no
+markdown (no backticks, bullet, bold or indent), absolute:
+
+    Report: /abs/path/to/report.md
+
+A hook checks that line and that the file is non-empty; it blocks your stop
+otherwise.
 
 ## Hard rules
 
