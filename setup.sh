@@ -44,7 +44,8 @@ SETTINGS="$HOME/.claude/settings.json"
 if command -v jq >/dev/null 2>&1; then
   [[ -f "$SETTINGS" ]] || echo '{}' > "$SETTINGS"
   add_hook() { # add_hook <event> <matcher> <script>
-    local cmd="bash \"$(pwd)/scripts/hooks/$3\""
+    local cmd
+    cmd="bash \"$(pwd)/scripts/hooks/$3\""
     if jq -e --arg c "$cmd" '[.. | .command? // empty] | index($c)' "$SETTINGS" >/dev/null; then
       echo "hook $3 already wired"; return
     fi
