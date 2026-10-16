@@ -77,6 +77,8 @@ export CREWMATES_HOME="$HOME/Documents/Projects/crewmates"
 | `pr-merge.sh <pr> [--issue N]` | Squash-merge, delete branch, close issue |
 | `board-move.sh --owner --project --issue --status` | Move card on Projects v2 board |
 
+Tests: `./scripts/gh/test-next-ticket.sh` (dependency parsing; `Depends on:` may appear mid-line).
+
 ## Ticket-loop hooks
 
 Wired into `~/.claude/settings.json` by `setup.sh` via `scripts/hooks/wire.sh`:
