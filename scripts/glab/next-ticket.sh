@@ -10,9 +10,9 @@ set -euo pipefail
 # extract_deps: reads an issue body on stdin, prints dependency numbers (one per line).
 # Only "#N" refs directly after "Depends on:" count (case-insensitive, anywhere in
 # a line, optional markdown emphasis around the label), separated by commas,
-# whitespace or "and".
+# semicolons, ampersands, backticks, whitespace or "and".
 extract_deps() {
-  { grep -oiE 'depends on:[*_]*([[:space:]]*(,|and)?[[:space:]]*#[0-9]+)+' || true; } \
+  { grep -oiE 'depends on[*_]*:[*_]*([[:space:]]|,|;|&|`|and|#[0-9]+)+' || true; } \
     | { grep -oE '#[0-9]+' || true; } | tr -d '#'
 }
 

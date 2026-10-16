@@ -22,6 +22,12 @@ check "none"                   "Depends on: none" ""
 check "no depends line"        "Just see #12 for context" ""
 check "refs after dep stop"    "Depends on: #4 (see #99)" "4"
 check "multiple lines"         $'Depends on: #1\nsome text #50\nDepends on: #2, #3' "1 2 3"
+check "colon outside bold"     "**Depends on**: #5" "5"
+check "serial comma and"       "Depends on: #5, #6, and #7" "5 6 7"
+check "comma and pair"         "Depends on: #5, and #6" "5 6"
+check "semicolon and ampersand" "Depends on: #5; #6 & #7" "5 6 7"
+check "backtick refs"          "Depends on: \`#5\`, \`#6\`" "5 6"
+check "stops at parenthesis"   "Depends on: #12 (blocked by infra #99)" "12"
 
 [[ $fails -eq 0 ]] || { echo "$fails failure(s)"; exit 1; }
 echo "all passed"

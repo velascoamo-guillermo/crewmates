@@ -23,6 +23,11 @@ jobs:
       - name: hook behaviour tests
         run: ./scripts/ci/test-hooks.sh
 
+      - name: next-ticket dependency parsing tests
+        run: |
+          ./scripts/gh/test-next-ticket.sh
+          ./scripts/glab/test-next-ticket.sh
+
   generator:
     runs-on: ubuntu-latest
     steps:
