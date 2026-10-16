@@ -3,7 +3,7 @@
 set -uo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=next-ticket.sh
-source "$HERE/next-ticket.sh"
+source "${NEXT_TICKET_SCRIPT:-$HERE/next-ticket.sh}"
 
 fails=0
 check() { # name, body, expected (space-joined numbers)
