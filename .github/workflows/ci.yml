@@ -28,6 +28,9 @@ jobs:
           command -v ffmpeg >/dev/null || { sudo apt-get update && sudo apt-get install -y ffmpeg; }
           ./scripts/gh/test-evidence-publish.sh
 
+      - name: pr-merge gate tests
+        run: ./scripts/gh/test-pr-merge.sh
+
       - name: next-ticket dependency parsing tests
         run: |
           ./scripts/gh/test-next-ticket.sh
