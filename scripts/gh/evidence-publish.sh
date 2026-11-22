@@ -81,25 +81,27 @@ else
   g push -q "$push_url" refs/heads/evidence:refs/heads/evidence >&2
 fi
 
+# Byte-exact RFC 3986 encoding; independent of printf's handling of 'c (bash 3.2 sign-extends).
 urlencode() {
-  local LC_ALL=C s="$1" i c out=""
-  for ((i = 0; i < ${#s}; i++)); do
-    c="${s:i:1}"
-    case "$c" in
-      [a-zA-Z0-9._~-]) out+="$c" ;;
-      *) out+="$(printf '%%%02X' "'$c")" ;;
+  local LC_ALL=C hex out=""
+  for hex in $(printf '%s' "$1" | od -An -v -tx1 | tr a-f A-F); do
+    case "$hex" in
+      2D | 2E | 2F | 5F | 7E | 3[0-9] | 4[1-9A-F] | 5[0-9A] | 6[1-9A-F] | 7[0-9A]) out+="$(printf "\\x$hex")" ;;
+      *) out+="%$hex" ;;
     esac
   done
   printf '%s' "$out"
 }
+
+mdescape() { local s="${1//\[/\\[}"; printf '%s' "${s//\]/\\]}"; }
 
 for f in "${files[@]}"; do
   name="$(basename "$f")"
   url="https://github.com/$slug/blob/evidence/pr-$pr/$(urlencode "$name")"
   ext="$(tr '[:upper:]' '[:lower:]' <<<"${name##*.}")"
   case "$ext" in
-    png | jpg | jpeg | gif | webp) echo "![$name]($url?raw=true)" ;;
-    mp4) echo "[$name (video)]($url)" ;;
-    *) echo "[$name]($url)" ;;
+    png | jpg | jpeg | gif | webp) echo "![$(mdescape "$name")]($url?raw=true)" ;;
+    mp4) echo "[$(mdescape "$name") (video)]($url)" ;;
+    *) echo "[$(mdescape "$name")]($url)" ;;
   esac
 done
