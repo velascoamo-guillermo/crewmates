@@ -28,7 +28,7 @@ for f in "$@"; do
   [[ -f "$f" ]] || { echo "file not found: $f" >&2; usage; }
 done
 
-tmp="$(mktemp -d)"
+tmp="$(mktemp -d "${TMPDIR:-/tmp}/evidence-publish.XXXXXX")"
 trap 'rm -rf "$tmp"' EXIT
 
 # owner/repo from the configured (un-rewritten) remote URL; https and ssh forms
@@ -41,7 +41,7 @@ if [[ $gif -eq 1 ]]; then
   command -v ffmpeg >/dev/null 2>&1 || { echo "ffmpeg is required for --gif but is not installed" >&2; exit 1; }
   mkdir -p "$tmp/gif"
   for f in "$@"; do
-    [[ "${f##*.}" == "mp4" ]] || continue
+    [[ "$(tr '[:upper:]' '[:lower:]' <<<"${f##*.}")" == "mp4" ]] || continue
     base="$(basename "${f%.*}")"
     out="$tmp/gif/$base.gif"
     for cfg in "12 480" "8 400" "6 320" "5 240"; do
@@ -81,9 +81,21 @@ else
   g push -q "$push_url" refs/heads/evidence:refs/heads/evidence >&2
 fi
 
+urlencode() {
+  local LC_ALL=C s="$1" i c out=""
+  for ((i = 0; i < ${#s}; i++)); do
+    c="${s:i:1}"
+    case "$c" in
+      [a-zA-Z0-9._~-]) out+="$c" ;;
+      *) out+="$(printf '%%%02X' "'$c")" ;;
+    esac
+  done
+  printf '%s' "$out"
+}
+
 for f in "${files[@]}"; do
   name="$(basename "$f")"
-  url="https://github.com/$slug/blob/evidence/pr-$pr/$name"
+  url="https://github.com/$slug/blob/evidence/pr-$pr/$(urlencode "$name")"
   ext="$(tr '[:upper:]' '[:lower:]' <<<"${name##*.}")"
   case "$ext" in
     png | jpg | jpeg | gif | webp) echo "![$name]($url?raw=true)" ;;

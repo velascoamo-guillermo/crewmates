@@ -25,7 +25,12 @@ printf 'png' >"$T/shot.png"; printf 'vid' >"$T/clip.mp4"; printf 'txt' >"$T/note
 
 # working tree dirt must survive
 echo dirty >>a.txt; echo staged >b.txt; git add b.txt; echo untracked >c.txt
-snap() { echo "$(git rev-parse HEAD) $(git symbolic-ref HEAD) $(git status --porcelain=v1 | tr '\n' '|') $(git diff | md5 -q 2>/dev/null || git diff | md5sum)"; }
+hsh() { if command -v md5sum >/dev/null 2>&1; then md5sum; else md5 -q; fi; }
+snap() {
+  echo "$(git rev-parse HEAD) $(git symbolic-ref HEAD) $(git status --porcelain=v1 | tr '\n' '|')" \
+    "$(git diff | hsh) $(git write-tree) $(git diff --cached | hsh)" \
+    "$(git ls-files -o --exclude-standard -z | xargs -0 cat | hsh)"
+}
 before="$(snap)"
 
 out="$("$SCRIPT" 7 "$T/shot.png" "$T/clip.mp4" "$T/notes.txt" 2>"$T/err")"; rc=$?
@@ -52,10 +57,36 @@ eq "republish overwrites" "$(git show origin/evidence:pr-7/shot.png)" "new"
 eq "other files kept" "$(git show origin/evidence:pr-7/notes.txt)" "txt"
 eq "caller state still unchanged" "$(snap)" "$before"
 
-"$SCRIPT" >/dev/null 2>&1; eq "usage: no args exits 2" "$?" "2"
-"$SCRIPT" abc "$T/shot.png" >/dev/null 2>&1; eq "usage: non-numeric PR exits 2" "$?" "2"
-"$SCRIPT" 7 "$T/missing.png" >/dev/null 2>&1; eq "usage: missing file exits 2" "$?" "2"
-"$SCRIPT" 7 >/dev/null 2>&1; eq "usage: no files exits 2" "$?" "2"
+usage_case() {
+  local label="$1"; shift
+  local o e rc
+  o="$("$SCRIPT" "$@" 2>"$T/uerr")"; rc=$?
+  e="$(cat "$T/uerr")"
+  eq "usage: $label exits 2" "$rc" "2"
+  eq "usage: $label stdout empty" "$o" ""
+  [[ "$e" == *usage:* ]] && ok "usage: $label usage on stderr" || fail "usage: $label usage on stderr" "$e"
+}
+usage_case "no args"
+usage_case "non-numeric PR" abc "$T/shot.png"
+usage_case "missing file" 7 "$T/missing.png"
+usage_case "no files" 7
+
+# temp dir cleanup (success and failed push)
+mkdir "$T/tmpd"
+TMPDIR="$T/tmpd" "$SCRIPT" 11 "$T/shot.png" >/dev/null 2>&1
+eq "tmp cleaned after success" "$(ls -A "$T/tmpd" | wc -l | tr -d ' ')" "0"
+git init -q --bare "$T/rej.git"
+printf '#!/bin/sh\nexit 1\n' >"$T/rej.git/hooks/pre-receive"; chmod +x "$T/rej.git/hooks/pre-receive"
+git remote add rej https://github.com/acme/rejecting.git
+git config "url.$T/rej.git.insteadOf" https://github.com/acme/rejecting.git
+TMPDIR="$T/tmpd" "$SCRIPT" --remote rej 11 "$T/shot.png" >/dev/null 2>&1; rc=$?
+[[ $rc -ne 0 ]] && ok "rejected push exits non-zero" || fail "rejected push exits non-zero"
+eq "tmp cleaned after failed push" "$(ls -A "$T/tmpd" | wc -l | tr -d ' ')" "0"
+
+# filenames with spaces are URL-encoded
+cp "$T/shot.png" "$T/Screenshot 2026-11-22 at 10.00.00.png"
+sp="$("$SCRIPT" 12 "$T/Screenshot 2026-11-22 at 10.00.00.png" 2>/dev/null)"
+eq "markdown encodes spaces" "$sp" '![Screenshot 2026-11-22 at 10.00.00.png](https://github.com/acme/widgets/blob/evidence/pr-12/Screenshot%202026-11-22%20at%2010.00.00.png?raw=true)'
 
 # ssh-form remote
 git remote add sshr git@github.com:acme/gadgets.git
@@ -71,6 +102,10 @@ if command -v ffmpeg >/dev/null 2>&1; then
   size="$(git cat-file -s origin/evidence:pr-10/demo.gif 2>/dev/null || echo 99999999999)"
   [[ "$size" -gt 0 && "$size" -le 10485760 ]] && ok "--gif publishes gif <= 10 MB" || fail "--gif publishes gif" "size $size"
   grep -q 'demo.gif?raw=true' <<<"$gout" && grep -q 'demo.mp4 (video)' <<<"$gout" && ok "--gif markdown has both" || fail "--gif markdown has both" "$gout"
+  cp "$T/demo.mp4" "$T/UP.MP4"
+  "$SCRIPT" --gif 13 "$T/UP.MP4" >/dev/null 2>&1
+  git fetch -q origin evidence:refs/remotes/origin/evidence
+  git cat-file -e origin/evidence:pr-13/UP.gif 2>/dev/null && ok "--gif handles .MP4" || fail "--gif handles .MP4"
 else
   echo "ok   - skip - ffmpeg not installed"
 fi
