@@ -16,6 +16,11 @@ fi
 LABELS=(
   "ticket|1D76DB|Workable unit in the GitHub-first ticket loop"
   "blocked|D93F0B|Work blocked — needs Guille (access, decision, external dep)"
+  "risk:low|2DA44E|Low risk (docs, copy, styling, tests, patch bumps): auto-merge after APPROVE + green CI"
+  "risk:medium|FBCA04|Ordinary features and bugfixes: owner approves on GitHub before merge"
+  "risk:high|D73A4A|High risk (auth, payments, schema, deletion, CI, infra, prod): owner approval after 2nd review"
+  "review:second-pass|8250DF|Second independent review (/code-review high) completed for a risk:high PR"
+  "spec|C5DEF5|Pinned spec issue (source of truth for a body of work)"
 )
 
 for entry in "${LABELS[@]}"; do

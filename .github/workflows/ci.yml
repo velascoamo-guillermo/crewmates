@@ -28,6 +28,9 @@ jobs:
           ./scripts/gh/test-next-ticket.sh
           ./scripts/glab/test-next-ticket.sh
 
+      - name: ensure-labels tests
+        run: ./scripts/gh/test-ensure-labels.sh
+
   generator:
     runs-on: ubuntu-latest
     steps:
