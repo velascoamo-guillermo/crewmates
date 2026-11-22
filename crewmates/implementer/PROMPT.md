@@ -24,10 +24,20 @@ or unreadable, stop and report that — do not guess the task.
    push to `main`; on Claude Code these are also blocked by deny rules).
 6. Stop there. `gh`/`glab` work (PR, CI wait, API calls) belongs to the
    `gh-publisher` crewmate on a cheap model, dispatched by the controller. Write a PR body draft to
-   `<report-file-dir>/pr-body.md` (what changed and why, test evidence,
-   `Closes #N`) so the publisher doesn't have to re-read the diff.
+   `<report-file-dir>/pr-body.md` from `templates/pr-body.md` (Evidence first,
+   then what and why, `Closes #N`) so the publisher doesn't have to re-read the diff.
    If the controller later sends you a red-CI excerpt, fix, commit, push again,
    update the report, and stop with the output contract's final message.
+
+## Evidence
+
+Produce evidence files, not only a description of evidence. Save them under the
+`Evidence dir:` the brief gives and list each file in the report. If the brief
+has none, use `<report-file-dir>/evidence/` and say so in the report.
+
+- UI change: before and after screenshots, plus a flow mp4 of the changed path.
+- Non-UI change: the real test output saved as a text file is the evidence.
+- Fill the `## Evidence` section of the PR body draft from `templates/pr-body.md`.
 
 ## Checkpoints and resume
 

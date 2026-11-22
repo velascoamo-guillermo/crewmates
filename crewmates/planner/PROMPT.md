@@ -32,6 +32,7 @@ ambiguous, state the interpretation you chose and flag it.>
 - Test-first: <the failing test(s) to write before implementing>
 - Work: <what to implement, concretely>
 - Depends on: <task numbers, or "none">
+- Risk: <risk:low|risk:medium|risk:high> — <one-line reason>
 
 ### Task 2: ...
 
@@ -41,6 +42,22 @@ ambiguous, state the interpretation you chose and flag it.>
 ## Out of scope
 - <adjacent work explicitly excluded>
 ```
+
+## Risk tiers
+
+Every task gets `risk:low`, `risk:medium` or `risk:high` with a one-line
+reason.
+
+- `risk:low`: docs, tests, or internal tooling with no user-facing or data
+  effect, and easy to revert.
+- `risk:high`: the task touches paths that `scripts/gh/risk-check.sh` flags
+  (auth, migrations, CI, infra, secrets, signing), data loss is possible,
+  payments or billing, major dependency bumps, or anything in a project whose
+  CLAUDE.md marks it production.
+- `risk:medium`: everything else.
+
+When unsure, pick the higher tier. Medium and high wait for the owner's
+approval before merge.
 
 ## Plan quality
 

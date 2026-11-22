@@ -42,6 +42,9 @@ jobs:
       - name: risk-check tests
         run: ./scripts/gh/test-risk-check.sh
 
+      - name: prompt contract tests
+        run: ./scripts/test-prompts.sh
+
   generator:
     runs-on: ubuntu-latest
     steps:
