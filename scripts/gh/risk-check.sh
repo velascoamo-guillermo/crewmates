@@ -43,16 +43,18 @@ else
   globs=("${DEFAULTS[@]}")
 fi
 
-files="$(git diff --name-only "$base...HEAD")" || { echo "risk-check: git diff failed" >&2; exit 2; }
+tmp="$(mktemp)"; trap 'rm -f "$tmp"' EXIT
+git -c core.quotePath=false -c diff.relative=false -c diff.renames=false \
+  diff --name-only -z --no-renames "$base...HEAD" >"$tmp" || { echo "risk-check: git diff failed" >&2; exit 2; }
 
 matches=""
-while IFS= read -r path || [[ -n "$path" ]]; do
+while IFS= read -r -d '' path; do
   [[ -z "$path" ]] && continue
   for g in ${globs[@]+"${globs[@]}"}; do
     # shellcheck disable=SC2053
     if [[ $path == $g ]]; then matches+="  $path  ($g)"$'\n'; break; fi
   done
-done <<<"$files"
+done <"$tmp"
 
 if [[ -n "$matches" ]]; then
   echo "risk:high"

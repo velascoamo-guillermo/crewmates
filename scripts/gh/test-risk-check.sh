@@ -72,6 +72,49 @@ printf '# nothing\n\n' >"$T/empty"
 out=$(run_script --base main --config "$T/empty")
 eq "comment-only config" "$out" "no-escalation"
 
+# default globs: one matching path each, dropping any default must fail
+while IFS='|' read -r glob path; do
+  reset_branch; touch_files "$path"
+  out=$(run_script --base main)
+  eq "default glob $glob" "$out" "risk:high"$'\n'"  $path  ($glob)"
+done <<'TABLE'
+*migrations/*|db/migrations/1.ts
+*.sql|db/schema.sql
+.github/*|.github/CODEOWNERS
+infra/*|infra/a.yaml
+k8s/*|k8s/a.yaml
+terraform/*|terraform/a.hcl
+*.tf|main.tf
+*auth/*|src/auth/a.ts
+*Auth*|src/LoginAuth.ts
+*secrets*|config/secrets.json
+*.env*|app/.env.local
+fastlane/*|fastlane/Fastfile
+*Podfile.lock|ios/Podfile.lock
+TABLE
+
+# unusual paths must not be quoted away by git
+for p in ".github/workflows/café.yml" "terraform/ñ.hcl" 'fastlane/a"b'; do
+  reset_branch; touch_files "$p"
+  out=$(run_script --base main)
+  [[ "$out" == risk:high$'\n'*"  $p  ("* ]] && ok "unusual path $p" || fail "unusual path $p" "got [$out]"
+done
+
+# rename out of a risky dir still flags the source
+git checkout -q main; git branch -q -D rbase 2>/dev/null; git checkout -q -b rbase
+touch_files .github/workflows/ci.yml
+git checkout -q -B feat
+mkdir -p old; git mv .github/workflows/ci.yml old/ci.yml; git commit -q -m rename
+out=$(run_script --base rbase)
+eq "rename hides source" "$out" $'risk:high\n  .github/workflows/ci.yml  (.github/*)'
+git checkout -q main
+
+# a comment line that would match as a glob must be skipped
+reset_branch; touch_files '#notes.md'
+printf '#*\n' >"$T/hash"
+out=$(run_script --base main --config "$T/hash")
+eq "comment line not treated as glob" "$out" "no-escalation"
+
 # bad base
 run_script --base nope >/dev/null 2>&1; eq "bad base exit" "$?" "2"
 # usage error
