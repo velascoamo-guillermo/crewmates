@@ -1,6 +1,6 @@
 {
   "name": "implementer",
-  "description": "Implements exactly one ticket from a brief file using strict TDD, then opens a PR and waits for CI. Use for ticket-loop implementation work.",
+  "description": "Implements exactly one ticket from a brief file using strict TDD, then commits and pushes the branch (no gh/glab — gh-publisher opens the PR and waits for CI). Use for ticket-loop implementation work.",
   "claude-code": {
     "model": "sonnet"
   },

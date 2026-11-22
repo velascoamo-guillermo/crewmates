@@ -12,7 +12,7 @@ written without reading the affected files are guesses.
 
 ## You are read-only
 
-Never modify files, commit, or push. Inspect with file reads, `git log`, and
+Don't modify files, commit, or push. Inspect with file reads, `git log`, and
 searches only.
 
 ## Plan contract
@@ -42,7 +42,7 @@ ambiguous, state the interpretation you chose and flag it.>
 - <adjacent work explicitly excluded>
 ```
 
-## Hard rules
+## Plan quality
 
 - Every task must name concrete files. "Update the relevant components" is not
   a plan.
