@@ -115,6 +115,28 @@ printf '#*\n' >"$T/hash"
 out=$(run_script --base main --config "$T/hash")
 eq "comment line not treated as glob" "$out" "no-escalation"
 
+# newline / backslash in a matched path must stay on one output line (escaped)
+reset_branch; touch_files $'.github/a\nb.yml' '.github/c\d.yml'
+out=$(run_script --base main)
+eq "newline and backslash escaped" "$out" $'risk:high\n  .github/a\\nb.yml  (.github/*)\n  .github/c\\\\d.yml  (.github/*)'
+
+# submodule pointer bumps under a risky dir (also with ignore=all in .gitmodules)
+git init -q -b main "$T/subsrc"; ( cd "$T/subsrc" && git config user.name t && git config user.email t@t && echo 1 >f && git add f && git commit -q -m s1 )
+git init -q -b main "$T/swork"; cd "$T/swork" || exit 1
+git config user.name t; git config user.email t@t
+echo hi >README.md; git add README.md; git commit -q -m init
+git -c protocol.file.allow=always submodule add -q "$T/subsrc" infra/sub >/dev/null 2>&1; git commit -q -m addsub
+bump() { ( cd infra/sub && git -c user.name=t -c user.email=t@t commit -q --allow-empty -m "$1" ); git add --force infra/sub; git commit -q -m bump; }
+git checkout -q -b feat; bump b1
+out=$(run_script --base main)
+eq "plain submodule bump" "$out" $'risk:high\n  infra/sub  (infra/*)'
+git checkout -q main; git branch -q -D feat; git checkout -q -b feat
+git config -f .gitmodules submodule.infra/sub.ignore all; git add .gitmodules; git commit -q -m ign
+bump b2
+out=$(run_script --base main)
+eq "submodule bump hidden by ignore=all" "$out" $'risk:high\n  infra/sub  (infra/*)'
+cd "$T/work" || exit 1
+
 # bad base
 run_script --base nope >/dev/null 2>&1; eq "bad base exit" "$?" "2"
 # usage error

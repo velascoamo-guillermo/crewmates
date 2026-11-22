@@ -45,14 +45,18 @@ fi
 
 tmp="$(mktemp)"; trap 'rm -f "$tmp"' EXIT
 git -c core.quotePath=false -c diff.relative=false -c diff.renames=false \
-  diff --name-only -z --no-renames "$base...HEAD" >"$tmp" || { echo "risk-check: git diff failed" >&2; exit 2; }
+  -c diff.ignoreSubmodules=none \
+  diff --name-only -z --no-renames --ignore-submodules=none "$base...HEAD" >"$tmp" || { echo "risk-check: git diff failed" >&2; exit 2; }
 
 matches=""
 while IFS= read -r -d '' path; do
   [[ -z "$path" ]] && continue
   for g in ${globs[@]+"${globs[@]}"}; do
     # shellcheck disable=SC2053
-    if [[ $path == $g ]]; then matches+="  $path  ($g)"$'\n'; break; fi
+    if [[ $path == $g ]]; then
+      shown="${path//\\/\\\\}"; shown="${shown//$'\n'/\\n}"
+      matches+="  $shown  ($g)"$'\n'; break
+    fi
   done
 done <"$tmp"
 
