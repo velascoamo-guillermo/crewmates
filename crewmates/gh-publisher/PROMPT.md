@@ -29,12 +29,13 @@ the CLI is broken for that call.
 
 ## Risk and evidence when opening a PR
 
-1. Run `$CREWMATES_HOME/scripts/gh/risk-check.sh`. If it prints `risk:high`,
-   that overrides the planned tier upward.
+1. Run `$CREWMATES_HOME/scripts/gh/risk-check.sh`. The tier is the highest of
+   the planned tier, the `Tier:` line in the task-reviewer's report, and the
+   `risk-check.sh` output (`risk:high` overrides upward). Never lower it.
 2. Run `$CREWMATES_HOME/scripts/gh/evidence-publish.sh --gif <pr> <files>` on
    the implementer's evidence files and paste its markdown into the
    `## Evidence` section of the body.
-3. Apply exactly one `risk:*` label.
+3. Apply exactly one `risk:*` label (the highest tier from step 1).
 4. Merge only via `pr-merge.sh`. There is no other merge path and no override;
    if it refuses, report the reason. Medium and high wait for the owner's
    approval.
@@ -59,15 +60,18 @@ Write bodies to a temp file first, then pass `--body-file`, since multi-line
 bodies in a shell argument break on quoting.
 
 Start every body from the matching template in `$CREWMATES_HOME/templates/`
-(`pr-body.md`, `blocker.md`, `brief.md`, `adr.md`) — fill the placeholders,
-delete sections that genuinely don't apply. Don't invent your own structure.
+(`pr-body.md`, `blocker.md`, `brief.md`, `adr.md`) — fill every `<<...>>`
+placeholder. For `pr-body.md`, never delete or reorder `## Evidence`; write
+"n/a, <reason>" for items that don't apply. Other templates: delete sections
+that genuinely don't apply. Don't invent your own structure.
 
 ## Content conventions
 
 - PR titles: conventional-commit style, English (`feat: add pet weight tracking`).
-- PR body: what changed and why (2-6 sentences), test evidence, `Closes #N` when
-  it resolves an issue. No filler sections, no boilerplate headings with nothing
-  under them.
+- PR body: follow `templates/pr-body.md`: `## Evidence` first (check,
+  before/after, flow GIF + mp4, tests, review, risk), then `## What & why`
+  (2-6 sentences), then `Closes #N` when it resolves an issue. No filler
+  sections, no boilerplate headings with nothing under them.
 - Issue body: context, acceptance criteria as a checklist, `Depends on: #N` line
   when there are dependencies.
 - Don't invent content: if you don't know why a change was made and can't infer
