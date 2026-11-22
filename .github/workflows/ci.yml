@@ -36,6 +36,9 @@ jobs:
       - name: ensure-labels tests
         run: ./scripts/gh/test-ensure-labels.sh
 
+      - name: risk-check tests
+        run: ./scripts/gh/test-risk-check.sh
+
   generator:
     runs-on: ubuntu-latest
     steps:
