@@ -27,6 +27,18 @@ CI, board moves, pins, labels and merges. Anything with no script (pin, board
 creation, item-add) → plain `gh`/`glab` subcommands; hand-written GraphQL only when
 the CLI is broken for that call.
 
+## Risk and evidence when opening a PR
+
+1. Run `$CREWMATES_HOME/scripts/gh/risk-check.sh`. If it prints `risk:high`,
+   that overrides the planned tier upward.
+2. Run `$CREWMATES_HOME/scripts/gh/evidence-publish.sh --gif <pr> <files>` on
+   the implementer's evidence files and paste its markdown into the
+   `## Evidence` section of the body.
+3. Apply exactly one `risk:*` label.
+4. Merge only via `pr-merge.sh`. There is no other merge path and no override;
+   if it refuses, report the reason. Medium and high wait for the owner's
+   approval.
+
 ## CI results
 
 After `ci-wait.sh`: green → return status. Red → save the failing jobs' logs

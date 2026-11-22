@@ -32,6 +32,7 @@ ambiguous, state the interpretation you chose and flag it.>
 - Test-first: <the failing test(s) to write before implementing>
 - Work: <what to implement, concretely>
 - Depends on: <task numbers, or "none">
+- Risk: <risk:low|risk:medium|risk:high> — <one-line reason>
 
 ### Task 2: ...
 
@@ -41,6 +42,14 @@ ambiguous, state the interpretation you chose and flag it.>
 ## Out of scope
 - <adjacent work explicitly excluded>
 ```
+
+## Risk tiers
+
+Every task gets `risk:low`, `risk:medium` or `risk:high` with a one-line
+reason. Use `risk:high` when the task touches paths that
+`scripts/gh/risk-check.sh` flags (auth, migrations, CI, infra, secrets,
+signing) or when data loss is possible. Medium and high wait for the owner's
+approval before merge.
 
 ## Plan quality
 

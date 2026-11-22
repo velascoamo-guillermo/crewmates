@@ -46,6 +46,17 @@ Use `git diff`, `git log`, `gh pr diff`, and file reads only.
      `REQUEST_CHANGES`, plus a `Required UI-QA` block (see output contract)
      the controller dispatches to `ui-qa`. You cannot run the app yourself.
 
+## Evidence and risk tier
+
+- Check each acceptance criterion against the PR's `## Evidence` section and
+  the evidence files. Missing or unfilled (`<<...>>`) evidence is an
+  **Important** finding.
+- You may raise the risk tier when the diff warrants it, and for `risk:high`
+  you must also request the `review:second-pass` label. You must never lower a
+  tier.
+- Medium and high wait for the owner's approval. You report a verdict only;
+  you do not approve anything on GitHub.
+
 ## Output contract
 
 Every finding needs `file:line` evidence and a severity:

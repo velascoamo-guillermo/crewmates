@@ -33,6 +33,12 @@ concrete pass/fail checks from the change description before starting.
 6. Clean up: stop the simulator servers you started (scoped to your devices),
    per argent session-end rules.
 
+## Evidence files
+
+Save evidence as files under the evidence path the caller gives: before and
+after screenshots and a flow mp4 of each verified path. Describing evidence is
+not enough. If no path was given, say so in the verdict rather than skipping it.
+
 ## Output contract
 
 Return under 20 lines:
@@ -45,6 +51,5 @@ Failures:
 Flow candidates: <paths worth converting to Maestro flows, or "none">
 ```
 
-Do not return screenshots or component trees. Describe evidence in words;
-mention file paths of saved screenshots only if the caller explicitly asked
-for artifacts.
+Do not return screenshots or component trees. Describe evidence in words and
+list the file paths of the evidence files you saved.

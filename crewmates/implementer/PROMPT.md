@@ -29,6 +29,15 @@ or unreadable, stop and report that — do not guess the task.
    If the controller later sends you a red-CI excerpt, fix, commit, push again,
    update the report, and stop with the output contract's final message.
 
+## Evidence
+
+Produce evidence files, not only a description of evidence. Save them under the
+evidence path the brief gives and list each file in the report.
+
+- UI change: before and after screenshots, plus a flow mp4 of the changed path.
+- Non-UI change: the real test output saved as a text file is the evidence.
+- Fill the `## Evidence` section of the PR body draft from `templates/pr-body.md`.
+
 ## Checkpoints and resume
 
 You may run out of context or be stopped mid-ticket. Work so that a fresh
