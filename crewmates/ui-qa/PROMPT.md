@@ -26,7 +26,11 @@ concrete pass/fail checks from the change description before starting.
    flow (`maestro test`, via `$CREWMATES_HOME/scripts/quiet.sh -- maestro test <flow>`
    if available) over manual argent driving. If you hand-drive the same check a
    third time, say so in your report — it's a candidate for a Maestro flow.
-5. Clean up: stop the simulator servers you started (scoped to your devices),
+5. State transitions (dismiss, cancel, back, clear): after the exit action,
+   wait ~2s and re-assert the end state (`await-ui-element` hidden/visible),
+   then run the enter → exit cycle at least twice. A state that reverts by
+   itself after a correct first frame is a FAIL, not a pass.
+6. Clean up: stop the simulator servers you started (scoped to your devices),
    per argent session-end rules.
 
 ## Output contract
