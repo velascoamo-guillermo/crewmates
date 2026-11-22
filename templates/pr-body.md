@@ -21,3 +21,6 @@
 nothing under them.>>
 
 Closes #<<N>>
+
+(No issue for this PR: delete the Closes line entirely. Do not leave the
+placeholder.)

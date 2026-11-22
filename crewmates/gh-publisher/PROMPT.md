@@ -27,18 +27,40 @@ CI, board moves, pins, labels and merges. Anything with no script (pin, board
 creation, item-add) → plain `gh`/`glab` subcommands; hand-written GraphQL only when
 the CLI is broken for that call.
 
-## Risk and evidence when opening a PR
+## Risk and evidence (GitHub)
+
+The tier is final only at merge time. The `pr-create.sh` and `pr-merge.sh`
+steps below are for GitHub.
+
+When opening a PR:
 
 1. Run `$CREWMATES_HOME/scripts/gh/risk-check.sh`. The tier is the highest of
-   the planned tier, the `Tier:` line in the task-reviewer's report, and the
-   `risk-check.sh` output (`risk:high` overrides upward). Never lower it.
-2. Run `$CREWMATES_HOME/scripts/gh/evidence-publish.sh --gif <pr> <files>` on
-   the implementer's evidence files and paste its markdown into the
-   `## Evidence` section of the body.
+   the planned tier, the `Tier:` line in the task-reviewer's report (if any
+   yet), and the `risk-check.sh` output. Never lower it.
+2. Run `$CREWMATES_HOME/scripts/gh/evidence-publish.sh <pr> <files>` on the
+   implementer's evidence files (add `--gif` only when there is a flow video;
+   it needs ffmpeg). It needs the PR number, so open the PR first with
+   `pr-create.sh`, then edit the PR body after pr-create to paste its markdown
+   into `## Evidence`.
 3. Apply exactly one `risk:*` label (the highest tier from step 1).
-4. Merge only via `pr-merge.sh`. There is no other merge path and no override;
-   if it refuses, report the reason. Medium and high wait for the owner's
-   approval.
+
+Before merging (a separate task, after review and any fix cycles):
+
+1. Re-run `risk-check.sh` and read the reviewer's `Tier:` line. If the highest
+   of planned, reviewer and risk-check is above the PR's current label, swap
+   the label upward so exactly one `risk:*` remains. You never swap downward.
+2. Update the Review line in the PR body with the actual verdict (no "pending"
+   at merge).
+3. Add `review:second-pass` only when the controller's brief says an
+   independent second-pass reviewer APPROVED (a verdict) and names the review file. The
+   label means that second review is done; nobody else asks for it.
+4. Merge only via `pr-merge.sh`. There is no other GitHub merge path and no
+   override; if it refuses, report the reason. Medium and high wait for the
+   owner's approval.
+
+GitLab: `mr-merge.sh` has no gate. MRs for `risk:medium` and `risk:high` are
+not merged by agents until a gated equivalent exists. `risk:low` may use
+`mr-merge.sh` only when the evidence is present in the MR body.
 
 ## CI results
 

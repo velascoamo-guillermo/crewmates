@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # Offline contract tests for the agent prompts and templates/pr-body.md.
+# This is a contract tripwire, not a proof: it catches accidental edits to the
+# prompt wording. The deny rules and pr-merge.sh are the actual enforcement.
 # Run: ./scripts/test-prompts.sh   (needs jq, perl)
 #
 # Rules enforced:
@@ -50,6 +52,35 @@ has "reviewer output has Tier line" "$P/task-reviewer/PROMPT.md" "Tier: risk:"
 has "publisher applies reviewer tier" "$P/gh-publisher/PROMPT.md" "reviewer"
 grep -qF "what changed and why (2-6 sentences)" "$P/gh-publisher/PROMPT.md" && fail "publisher conventions consistent with Evidence-first template" "old what/why-first bullet remains" || ok "publisher conventions consistent with Evidence-first template"
 grep -qF "delete sections that genuinely don't apply" "$P/gh-publisher/PROMPT.md" && fail "publisher may not delete ## Evidence" "old delete-sections wording remains" || ok "publisher may not delete ## Evidence"
+
+# --- forbidden patterns across all prompts (sentence level)
+sent_check() { # name, perl-match-regex, perl-exempt-regex
+  local out=""
+  for f in "$P"/*/PROMPT.md; do
+    h="$(perl -0e 'local $/; $_=<>; for my $s (split /(?<=[.!?])\s+|\n\s*\n/) { print "$s\n" if $s =~ /'"$2"'/i && $s !~ /'"$3"'/i }' "$f")"
+    [[ -n "$h" ]] && out+="${out:+$'\n'}${f#"$ROOT"/}: $h"
+  done
+  [[ -z "$out" ]] && ok "$1" || fail "$1" "$out"
+}
+sent_check "no prompt runs gh pr merge outside a pr-merge.sh sentence" 'gh\s+pr\s+merge' 'pr-merge\.sh'
+sent_check "no prompt uses --admin" '--admin' '(?!)'
+sent_check "no prompt tells an agent to push to main" 'push(es|ing)?\s+(directly\s+)?(it\s+)?to\s+`?(main|master)' '\b(no|never|not|nor|don.t|without|blocked|deny)\b'
+has "publisher never lowers the tier" "$P/gh-publisher/PROMPT.md" "Never lower"
+has "publisher re-runs risk-check before merge" "$P/gh-publisher/PROMPT.md" "Before merging"
+has "publisher swaps label upward only" "$P/gh-publisher/PROMPT.md" "never swap downward"
+has "publisher updates Review line before merge" "$P/gh-publisher/PROMPT.md" "Review line"
+has "publisher edits body after pr-create" "$P/gh-publisher/PROMPT.md" "after pr-create"
+has "second-pass label means approved review" "$P/gh-publisher/PROMPT.md" "second-pass reviewer APPROVED"
+has "reviewer does not request second-pass label" "$P/task-reviewer/PROMPT.md" "never ask for the"
+has "publisher scopes pr-merge to GitHub, GitLab not merged by agents" "$P/gh-publisher/PROMPT.md" "not merged by agents"
+has "planner defines low tier" "$P/planner/PROMPT.md" "internal tooling"
+has "planner high includes payments" "$P/planner/PROMPT.md" "payments"
+has "planner picks higher when unsure" "$P/planner/PROMPT.md" "pick the higher"
+has "brief has Evidence dir field" "$ROOT/templates/brief.md" "Evidence dir:"
+has "implementer references Evidence dir" "$P/implementer/PROMPT.md" "Evidence dir:"
+has "ui-qa references Evidence dir" "$P/ui-qa/PROMPT.md" "Evidence dir:"
+has "template says to drop Closes line" "$TPL" "delete the Closes line"
+grep -qF "(what changed and why, test evidence" "$P/implementer/PROMPT.md" && fail "implementer PR draft matches Evidence-first template" "stale layout remains" || ok "implementer PR draft matches Evidence-first template"
 
 # --- role contracts
 has "publisher runs risk-check.sh" "$P/gh-publisher/PROMPT.md" "risk-check.sh"

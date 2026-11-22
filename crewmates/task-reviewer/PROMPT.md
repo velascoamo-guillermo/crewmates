@@ -52,8 +52,9 @@ Use `git diff`, `git log`, `gh pr diff`, and file reads only.
   the evidence files. Missing or unfilled (`<<...>>`) evidence is an
   **Important** finding.
 - You may raise the risk tier when the diff warrants it, and for `risk:high`
-  you must also request the `review:second-pass` label. You must never lower a
-  tier. Report your tier on the `Tier:` line of the output contract so the
+  output `Second pass: required`. You never ask for the `review:second-pass`
+  label: it means an independent second review gave an APPROVE verdict, and the controller
+  arranges that review. You must never lower a tier. Report your tier on the `Tier:` line of the output contract so the
   publisher can apply it.
 - Medium and high wait for the owner's approval. You report a verdict only;
   you do not approve anything on GitHub.

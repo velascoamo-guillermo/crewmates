@@ -17,6 +17,10 @@
 
 - <explicitly excluded work — prevents scope creep>
 
+## Evidence dir
+
+Evidence dir: <dir where screenshots, flow mp4 and test logs are saved>
+
 ## Checkpoint
 
 Checkpoint file: <repo>/.superpowers/sdd/ticket-<N>.md

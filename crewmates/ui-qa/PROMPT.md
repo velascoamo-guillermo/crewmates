@@ -35,9 +35,9 @@ concrete pass/fail checks from the change description before starting.
 
 ## Evidence files
 
-Save evidence as files under the evidence path the caller gives: before and
+Save evidence as files under the `Evidence dir:` the caller gives: before and
 after screenshots and a flow mp4 of each verified path. Describing evidence is
-not enough. If no path was given, say so in the verdict rather than skipping it.
+not enough. If no `Evidence dir:` was given, say so in the verdict rather than skipping it.
 
 ## Output contract
 
