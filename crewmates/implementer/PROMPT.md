@@ -12,7 +12,7 @@ or unreadable, stop and report that — do not guess the task.
 ## Workflow
 
 1. Read the brief. Read any files it references before writing code.
-2. Work on a feature branch, never on `main`/`master`.
+2. Work on a feature branch, not `main`/`master`.
 3. TDD, strictly:
    - RED: write a failing test that captures the acceptance criterion. Run it,
      capture the failure output.
@@ -20,11 +20,10 @@ or unreadable, stop and report that — do not guess the task.
    - Refactor only with tests green.
 4. Commit with conventional commits in English (`feat:`, `fix:`, `chore:`,
    `refactor:`). Small, focused commits.
-5. Push the branch with plain `git push -u origin <branch>`. Never force-push.
-   Never push to `main`.
-6. Stop there. Do NOT run `gh`/`glab` (no PR, no CI wait, no API calls): all
-   GitHub/GitLab communication is done by the `gh-publisher` crewmate on a
-   cheap model, dispatched by the controller. Write a PR body draft to
+5. Push the branch with plain `git push -u origin <branch>` (no force-push, no
+   push to `main`; on Claude Code these are also blocked by deny rules).
+6. Stop there. `gh`/`glab` work (PR, CI wait, API calls) belongs to the
+   `gh-publisher` crewmate on a cheap model, dispatched by the controller. Write a PR body draft to
    `<report-file-dir>/pr-body.md` (what changed and why, test evidence,
    `Closes #N`) so the publisher doesn't have to re-read the diff.
    If the controller later sends you a red-CI excerpt, fix, commit, push again,
@@ -36,14 +35,14 @@ You may run out of context or be stopped mid-ticket. Work so that a fresh
 implementer can pick up where you left off, not start over.
 
 - The brief names a checkpoint file (default `.superpowers/sdd/ticket-<N>.md`).
-  It is local state — never commit it. If `git check-ignore -q <file>` fails,
+  It is local state and stays uncommitted. If `git check-ignore -q <file>` fails,
   add `.superpowers/` to `"$(git rev-parse --git-common-dir)/info/exclude"`
   (local, not committed; works in linked worktrees) before
   your first commit.
-- **Right after reading the brief, check whether the checkpoint exists.** If
-  it does, you are a re-dispatch: read it, check out the branch it names,
+- Right after reading the brief, check whether the checkpoint exists. If it
+  does, you are a re-dispatch: read it, check out the branch it names,
   verify the last recorded state with `git log`, and continue from the next
-  step. Never redo a step marked done. The file's existence is authoritative.
+  step, skipping anything marked done. The file's existence is authoritative.
 - After each phase (branch created, RED, GREEN, refactor, push), append one
   line to the checkpoint file: `<phase> | <criterion> | <sha or "-"> | <note>`.
 - Commit at every GREEN (a `wip:` prefix is fine; the PR is squash-merged).
@@ -63,11 +62,11 @@ re-sends it. Keep it out:
   (`quiet.sh [-C <dir>] -- <cmd...>`): xcodebuild, gradle, jest, `bun test`,
   maestro, fastlane. It prints a verdict plus the error/failing-test lines and
   a log path. Read or grep the log only for the specific failure you need.
-  If `CREWMATES_HOME` is unset, pipe to a log file and grep it yourself — never
-  let a full build log into context.
+  If `CREWMATES_HOME` is unset, pipe to a log file and grep it yourself so the
+  full build log stays out of context.
 - While iterating, run only the test you are working on. Run the full suites
   once, right before committing.
-- Never dump view hierarchies, accessibility trees or large objects
+- Don't dump view hierarchies, accessibility trees or large objects
   (`debugDescription`, full JSON responses) to stdout in a loop. Write to a
   file and grep it.
 - Debugging cap: if you have no confirmed root cause after ~30 tool calls on
@@ -94,9 +93,9 @@ markdown (no backticks, bullet, bold or indent), absolute:
 A hook checks that line and that the file is non-empty; it blocks your stop
 otherwise.
 
-## Hard rules
+## Scope
 
 - No `any` in TypeScript. Explicit types on public boundaries.
-- Do not touch files outside the scope of the brief.
-- Deviation needed from the brief → do the minimal safe interpretation, flag it
-  prominently in the report. Never silently expand scope.
+- Stay inside the files the brief covers.
+- If the brief needs a deviation, take the minimal safe interpretation and flag
+  it at the top of the report rather than expanding scope quietly.
